@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#121212">
     <meta name="description" content="Calculadora profesional para cotización de impresión 3D">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,66 +11,76 @@
     
     <title>SICMA Pro - Calculadora 3D</title>
     
+    <link rel="manifest" href="#" id="manifest-placeholder">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAADGklEQVR4nO2bS2gTURSGv4yxammtilqLCxcu3LhQcOFCRRBBUHGhC1eu3Lhw4UZBUFwIgguhuFBRUVBQEAS1uBAEwYULxYWIL0RFfCCKWqzY1jTjyYVTGJqmycy9mUwm+eFAyMy959z/zpx7Z+6dBIPBYDAYDAaDwWAwGAwGQ0nQDqwGNgNbgY1AJ9ABtAJNQGPweRPQAmwANgFrgLXAMqAd+CMADgMjwATwE5gEpoCfwDgwBnwDvgJfgCHgE/AR+AB8AD4D74H3wDvgLfAGeA28Al4CL4DnwDPgKfAEeAw8Ah4CD4EB4D5wD7gL3AFuA7eAm8AN4DpwDbgKXAEuA5eAi8AF4DxwDjgLnAH6gT7gFHASOAGcBI4Dx4BjwFHgCHAYOAQcBA4AB4D9wD5gL7AH2A3sAnYCO4AdwHZgG7AV2AJsBjYBG4H1wDpgLbAGWA2sAlYCK4DlwDJgKbAEWAwsAhYCC4D5QAPmIw08Al4D/0qc18BT4AnwGHgEPAQeAPeB+8A94C5wB7gN3AJuAjeA68A14CpwBbgMXAIuAheA88A54CxwBugH+oBTwEngBHAcOAYcBY4Ah4FDwEHgALAf2AfsLaQD1JM/VXECu4BdwE5gB7Ad2AZsBbYAm4FNwEZgfTEd4BCwGqgrc34Bp4GzwBngNNAP9AGngJPACeA4cAw4ChwBDgOHgIPAAWA/sA/YC+wBdgO7St0B5gN1wAhQX+b8Bq4CV4ArwGXgEnARuACcB84BZ4u5BdYATwr8bCXHGHALuAncAK4D14qxBRqBd8DckucH8BD4B3zPn3vAADAADOoyH0gBKWAAmA+0AHOBE0W8F5gPzAGWAPOAdmAD0Ak0Ay2By6sZaANWAcuBJUAz0AJ0Bl7fz0Hg2R+3Uw+8AGYBPxSTiuZF8FnNkxizgAlgFvCxkqSi+QSMyXs+Aw+q6QFUB/BdXm9cB+8pqBVYgCFLCuhxXdLGUKLA60rX4b+6vL0AQ5YU0OO6pI2h5D/TLvfpcR0eiCz3Bf/FZ+wejCEiuoAI8F/gv7OJqf8KZjAYDAaDwWAwGAwGg8HAf+Q/tJfD+R8FYS8AAAAASUVORK5CYII=">
+    
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* RESET & BASICS */
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        
-        body { 
-            margin: 0; 
-            background: #0a0a0a; 
-            overscroll-behavior: none; /* Evita el rebote en iOS */
-            position: fixed; /* Bloquea el scroll del body entero */
-            width: 100%;
-            height: 100%;
-        }
-
-        /* CONTENEDOR MAESTRO */
-        #root { 
-            /* Usamos dvh para móviles, vh para fallback */
-            height: 100vh; 
-            height: 100dvh; 
-            width: 100%;
-            overflow: hidden; 
-            display: flex;
-            flex-direction: column;
+        * { -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: #0a0a0a; overscroll-behavior: none; }
+        #root { height: 100dvh; height: 100vh; overflow: hidden; }
+        @supports (height: 100dvh) {
+            #root { height: 100dvh; }
         }
         
-        /* ANIMACIONES */
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slide-up {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
         .animate-fade-in { animation: fade-in 0.3s ease-out; }
         .animate-slide-up { animation: slide-up 0.3s ease-out; }
         
-        /* SCROLLBAR PERSONALIZADO */
-        .custom-scroll {
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* Suavidad en iOS */
-        }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #1a1a1a; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #404040; border-radius: 2px; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #404040; border-radius: 3px; }
         
-        /* SLIDER PERSONALIZADO */
+        /* Range input styling */
         input[type="range"] {
-            -webkit-appearance: none; width: 100%; height: 8px;
-            background: #27272a; border-radius: 4px; outline: none;
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #27272a;
+            border-radius: 4px;
+            outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 24px; height: 24px;
-            background: #06b6d4; border-radius: 50%; cursor: pointer;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #06b6d4;
+            border-radius: 50%;
+            cursor: pointer;
             box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #06b6d4;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
         }
     </style>
     
     <script>
         tailwind.config = {
             theme: {
-                extend: { colors: { zinc: { 950: '#0a0a0a' } } }
+                extend: {
+                    colors: {
+                        zinc: {
+                            950: '#0a0a0a'
+                        }
+                    }
+                }
             }
         }
     </script>
@@ -81,7 +91,7 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
         
-        // --- ICONOS SVG ---
+        // Icons as SVG components
         const ChevronLeft = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>;
         const ChevronRight = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>;
         const Zap = ({size = 20}) => <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
@@ -100,7 +110,6 @@
         const Sparkles = ({size = 20}) => <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3L14 8L19 10L14 12L12 17L10 12L5 10L10 8L12 3Z"/><path d="M19 3L20 6L23 7L20 8L19 11L18 8L15 7L18 6L19 3Z"/></svg>;
         const AlertCircle = ({size = 20}) => <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
 
-        // --- CONSTANTES ---
         const PRINTERS = [
           { id: 'p1s', name: 'Bambu Lab P1S', watts: 300, wear: 800 },
           { id: 'a1', name: 'Bambu Lab A1', watts: 110, wear: 500 },
@@ -139,8 +148,6 @@
           { id: 'bold', name: 'Bold (Datafono)', rate: 5 }
         ];
 
-        // --- COMPONENTES ---
-
         function BomForm({ onSubmit, onCancel }) {
           const [name, setName] = useState('');
           const [cost, setCost] = useState('');
@@ -157,15 +164,37 @@
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-zinc-400 mb-2">Nombre</label>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="ej. Imanes, Tornillos..." className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="ej. Imanes, Tornillos..."
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500"
+                />
               </div>
               <div>
                 <label className="block text-sm text-zinc-400 mb-2">Costo (COP)</label>
-                <input type="number" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="5000" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500" />
+                <input
+                  type="number"
+                  value={cost}
+                  onChange={(e) => setCost(e.target.value)}
+                  placeholder="5000"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500"
+                />
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={onCancel} className="flex-1 py-3 rounded-lg border border-zinc-700 text-zinc-400">Cancelar</button>
-                <button onClick={handleSubmit} className="flex-1 py-3 rounded-lg bg-cyan-500 text-white font-bold">Agregar</button>
+                <button
+                  onClick={onCancel}
+                  className="flex-1 py-3 rounded-lg border border-zinc-700 text-zinc-400"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="flex-1 py-3 rounded-lg bg-cyan-500 text-white font-bold"
+                >
+                  Agregar
+                </button>
               </div>
             </div>
           );
@@ -173,19 +202,42 @@
 
         function App() {
           const [step, setStep] = useState(1);
-          const [config, setConfig] = useState({ kwhPrice: 920, printer: 'p1s', nozzle: 0.4, material: 'pla', amsMode: false });
-          const [print, setPrint] = useState({ printHours: 0, materialCost: 0, coolMinutes: 18 });
-          const [labor, setLabor] = useState({ complexity: 10, bom: [] });
-          const [logistics, setLogistics] = useState({ shipping: 'pickup', packaging: 'standard', gateway: 'nequi', profitMargin: 60 });
+          const [config, setConfig] = useState({
+            kwhPrice: 920,
+            printer: 'p1s',
+            nozzle: 0.4,
+            material: 'pla',
+            amsMode: false
+          });
+
+          const [print, setPrint] = useState({
+            printHours: 0,
+            materialCost: 0
+          });
+
+          const [labor, setLabor] = useState({
+            complexity: 10,
+            bom: []
+          });
+
+          const [logistics, setLogistics] = useState({
+            shipping: 'pickup',
+            packaging: 'standard',
+            gateway: 'nequi',
+            profitMargin: 60
+          });
+
           const [results, setResults] = useState(null);
           const [showBomDialog, setShowBomDialog] = useState(false);
 
           const updateConfig = (key, value) => {
             const newConfig = { ...config, [key]: value };
+            
             if (key === 'material') {
               const material = MATERIALS.find(m => m.id === value);
               setPrint(prev => ({ ...prev, coolMinutes: material.coolMinutes }));
             }
+            
             setConfig(newConfig);
           };
 
@@ -193,13 +245,24 @@
           const updateLabor = (key, value) => setLabor(prev => ({ ...prev, [key]: value }));
           const updateLogistics = (key, value) => setLogistics(prev => ({ ...prev, [key]: value }));
 
+          useEffect(() => {
+            const material = MATERIALS.find(m => m.id === config.material);
+            setPrint(prev => ({ ...prev, coolMinutes: material.coolMinutes }));
+          }, []);
+
           const addBomItem = (name, cost) => {
-            setLabor(prev => ({ ...prev, bom: [...prev.bom, { id: Date.now(), name, cost: parseFloat(cost) }] }));
+            setLabor(prev => ({
+              ...prev,
+              bom: [...prev.bom, { id: Date.now(), name, cost: parseFloat(cost) }]
+            }));
             setShowBomDialog(false);
           };
 
           const removeBomItem = (id) => {
-            setLabor(prev => ({ ...prev, bom: prev.bom.filter(item => item.id !== id) }));
+            setLabor(prev => ({
+              ...prev,
+              bom: prev.bom.filter(item => item.id !== id)
+            }));
           };
 
           const parseDecimalHours = (hours) => {
@@ -226,18 +289,23 @@
             
             let costMaterial = print.materialCost;
             costMaterial *= nozzle.riskFactor;
-            if (config.amsMode) costMaterial *= material.amsRisk;
+            if (config.amsMode) {
+              costMaterial *= material.amsRisk;
+            }
             
             const hardCosts = costEnergy + costWear + costMaterial;
+
             const baseLaborCost = 20000;
             const complexityMultiplier = 1 + (labor.complexity / 100);
             const costLabor = baseLaborCost * complexityMultiplier;
+            
             const costBomRaw = labor.bom.reduce((acc, item) => acc + item.cost, 0);
             const costBom = costBomRaw * 1.15;
             
             const softCosts = costLabor + costBom;
             const logisticsCosts = shipping.cost + packaging.cost;
             const baseCost = hardCosts + softCosts + logisticsCosts;
+
             const marginDecimal = logistics.profitMargin / 100;
             const sellPrice = baseCost / (1 - marginDecimal);
 
@@ -253,99 +321,225 @@
               feeEstimate = finalPrice - sellPrice;
             } else {
               finalPrice = sellPrice;
+              feeEstimate = 0;
             }
 
             finalPrice = Math.ceil(finalPrice / 100) * 100;
             const netProfit = sellPrice - baseCost;
 
             setResults({
-              finalPrice, hardCosts, softCosts, logisticsCosts, netProfit, feeEstimate, sellPrice,
-              breakdown: { energy: costEnergy, wear: costWear, material: costMaterial, labor: costLabor, bom: costBom }
+              finalPrice,
+              hardCosts,
+              softCosts,
+              logisticsCosts,
+              netProfit,
+              feeEstimate,
+              sellPrice,
+              breakdown: {
+                energy: costEnergy,
+                wear: costWear,
+                material: costMaterial,
+                labor: costLabor,
+                bom: costBom
+              }
             });
           };
 
           const shareQuote = () => {
             const txt = `*COTIZACIÓN 3D PROFESIONAL*\n━━━━━━━━━━━━━━━━━━━\n⏱️ Tiempo: ${print.printHours.toFixed(1)}h\n🚚 Envío incluido\n💳 Pago digital disponible\n\n💰 *TOTAL: $${results.finalPrice.toLocaleString('es-CO')} COP*\n━━━━━━━━━━━━━━━━━━━\n✨ Tu ganancia neta: $${results.netProfit.toLocaleString('es-CO')}\n📊 Margen: ${logistics.profitMargin}%\n_Validez: 5 días_`;
-            navigator.clipboard.writeText(txt).then(() => alert('✅ ¡Copiado!'));
+            navigator.clipboard.writeText(txt).then(() => {
+              alert('✅ ¡Cotización copiada al portapapeles!');
+            });
           };
 
           const saveToHistory = () => {
-             const quote = { id: Date.now(), date: new Date().toISOString(), config, print, labor, logistics, results };
-             const txt = `📋 COTIZACIÓN GUARDADA #${quote.id}\n${new Date(quote.date).toLocaleString('es-CO')}\n\nPrecio: $${results.finalPrice.toLocaleString('es-CO')}\nGanancia: $${results.netProfit.toLocaleString('es-CO')}`;
-             navigator.clipboard.writeText(txt);
-             alert('✅ ¡Guardado!');
+            const quote = {
+              id: Date.now(),
+              date: new Date().toISOString(),
+              config,
+              print,
+              labor,
+              logistics,
+              results
+            };
+            
+            const txt = `📋 COTIZACIÓN GUARDADA #${quote.id}\n${new Date(quote.date).toLocaleString('es-CO')}\n\nPrecio: $${results.finalPrice.toLocaleString('es-CO')}\nGanancia: $${results.netProfit.toLocaleString('es-CO')}\nMargen: ${logistics.profitMargin}%`;
+            navigator.clipboard.writeText(txt);
+            alert('✅ ¡Cotización copiada al portapapeles!');
           };
 
           const resetCalculator = () => {
             setStep(1);
-            setPrint({ printHours: 0, materialCost: 0, coolMinutes: 18 });
-            setLabor({ complexity: 10, bom: [] });
+            setConfig({
+              kwhPrice: 920,
+              printer: 'p1s',
+              nozzle: 0.4,
+              material: 'pla',
+              amsMode: false
+            });
+            setPrint({
+              printHours: 0,
+              materialCost: 0,
+              coolMinutes: 18
+            });
+            setLabor({
+              complexity: 10,
+              bom: []
+            });
+            setLogistics({
+              shipping: 'pickup',
+              packaging: 'standard',
+              gateway: 'nequi',
+              profitMargin: 60
+            });
             setResults(null);
           };
 
           const nextStep = () => {
-            if (step === 4) { calculate(); setStep(5); }
-            else if (step < 5) setStep(step + 1);
+            if (step === 4) {
+              calculate();
+              setStep(5);
+            } else if (step < 5) {
+              setStep(step + 1);
+            }
           };
-          const prevStep = () => { if (step > 1) setStep(step - 1); };
+
+          const prevStep = () => {
+            if (step > 1) setStep(step - 1);
+          };
+
           const getProgress = () => (step / 5) * 100;
+
           const selectedPrinter = PRINTERS.find(p => p.id === config.printer);
           const selectedMaterial = MATERIALS.find(m => m.id === config.material);
           const selectedNozzle = NOZZLES.find(n => n.size === config.nozzle);
 
           return (
-            // CAMBIO CLAVE AQUI: h-full en vez de min-h-screen
-            <div className="h-full bg-zinc-950 text-zinc-100 flex flex-col overflow-hidden relative">
-              
+            <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
               {/* Header */}
-              <header className="bg-zinc-900 border-b border-zinc-800 p-4 shrink-0 z-50">
+              <header className="bg-zinc-900 border-b border-zinc-800 p-4 sticky top-0 z-50">
                 <div className="flex items-center justify-between max-w-md mx-auto">
                   <div>
                     <h1 className="text-lg font-bold text-cyan-400 tracking-wider">SICMA</h1>
-                    <p className="text-xs text-zinc-500 font-mono">Calculadora Pro v2.1</p>
+                    <p className="text-xs text-zinc-500 font-mono">Calculadora Pro v2.0</p>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-bold text-white">{step}</div>
                     <div className="text-xs text-zinc-500">/5</div>
                   </div>
                 </div>
+                
                 <div className="max-w-md mx-auto mt-3">
                   <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-500" style={{ width: `${getProgress()}%` }} />
+                    <div 
+                      className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-500"
+                      style={{ width: `${getProgress()}%` }}
+                    />
                   </div>
                 </div>
               </header>
 
-              {/* Main Content - CAMBIO CLAVE: custom-scroll */}
-              <main className="flex-1 custom-scroll p-5 pb-32">
-                <div className="max-w-md mx-auto space-y-5">
+              {/* Main Content */}
+              <main className="flex-1 overflow-y-auto pb-32" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className="max-w-md mx-auto p-5">
                   
                   {/* Step 1 */}
                   {step === 1 && (
                     <div className="space-y-5 animate-fade-in">
                       <h2 className="text-2xl font-bold text-white mb-6">⚙️ Configuración</h2>
+                      
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
-                        <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-2"><Zap size={16} /> Costo Luz (COP/kWh)</label>
-                        <input type="number" value={config.kwhPrice} onChange={(e) => updateConfig('kwhPrice', parseFloat(e.target.value))} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-xl font-bold text-cyan-400 focus:outline-none focus:border-cyan-500" />
-                        <p className="text-xs text-zinc-500 mt-2">💡 Recomendado: ~920 COP</p>
+                        <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-2">
+                          <Zap size={16} />
+                          Costo Luz (COP/kWh)
+                        </label>
+                        <input
+                          type="number"
+                          value={config.kwhPrice}
+                          onChange={(e) => updateConfig('kwhPrice', parseFloat(e.target.value))}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-xl font-bold text-cyan-400 focus:outline-none focus:border-cyan-500"
+                        />
+                        <p className="text-xs text-zinc-500 mt-2">💡 Recomendado: ~920 COP (incluye pico)</p>
                       </div>
+
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
-                        <div className="flex items-center justify-between mb-3"><Printer size={24} /><span className="text-xs font-mono text-cyan-400 bg-zinc-800 px-2 py-1 rounded">HARDWARE</span></div>
+                        <div className="flex items-center justify-between mb-3">
+                          <Printer size={24} />
+                          <span className="text-xs font-mono text-cyan-400 bg-zinc-800 px-2 py-1 rounded">HARDWARE</span>
+                        </div>
+                        
                         <label className="block text-sm text-zinc-400 mb-2">Impresora</label>
-                        <select value={config.printer} onChange={(e) => updateConfig('printer', e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-500 mb-4">{PRINTERS.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}</select>
-                        <div className="flex justify-between text-xs font-mono mb-4"><span className="text-zinc-500">Consumo: <span className="text-white font-bold">{selectedPrinter.watts}W</span></span><span className="text-zinc-500">Desgaste: <span className="text-white font-bold">${selectedPrinter.wear}/h</span></span></div>
+                        <select
+                          value={config.printer}
+                          onChange={(e) => updateConfig('printer', e.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-500 mb-4"
+                        >
+                          {PRINTERS.map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                        </select>
+
+                        <div className="flex justify-between text-xs font-mono mb-4">
+                          <span className="text-zinc-500">Consumo: <span className="text-white font-bold">{selectedPrinter.watts}W</span></span>
+                          <span className="text-zinc-500">Desgaste: <span className="text-white font-bold">${selectedPrinter.wear}/h</span></span>
+                        </div>
+
                         <div className="pt-4 border-t border-zinc-800">
-                          <label className="block text-sm text-zinc-400 mb-2">Boquilla</label>
-                          <div className="grid grid-cols-4 gap-2">{NOZZLES.map(n => (<button key={n.size} onClick={() => updateConfig('nozzle', n.size)} className={`py-2 rounded-lg border-2 transition text-sm ${config.nozzle === n.size ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400' : 'border-zinc-700 text-zinc-400'}`}>{n.size}</button>))}</div>
+                          <label className="block text-sm text-zinc-400 mb-2">Boquilla (Nozzle)</label>
+                          <div className="grid grid-cols-4 gap-2">
+                            {NOZZLES.map(nozzle => (
+                              <button
+                                key={nozzle.size}
+                                onClick={() => updateConfig('nozzle', nozzle.size)}
+                                className={`py-2 rounded-lg border-2 transition text-sm ${
+                                  config.nozzle === nozzle.size 
+                                    ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400' 
+                                    : 'border-zinc-700 text-zinc-400'
+                                }`}
+                              >
+                                {nozzle.size}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="text-xs text-zinc-600 mt-2">
+                            ⚠️ Riesgo: +{((selectedNozzle.riskFactor - 1) * 100).toFixed(0)}%
+                          </p>
                         </div>
                       </div>
+
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
                         <label className="block text-sm text-zinc-400 mb-2">Material</label>
-                        <select value={config.material} onChange={(e) => updateConfig('material', e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-500 mb-4">{MATERIALS.map(m => (<option key={m.id} value={m.id}>{m.name}</option>))}</select>
+                        <select
+                          value={config.material}
+                          onChange={(e) => updateConfig('material', e.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-500 mb-4"
+                        >
+                          {MATERIALS.map(m => (
+                            <option key={m.id} value={m.id}>{m.name}</option>
+                          ))}
+                        </select>
+
                         <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg">
-                          <div className="flex items-center gap-2"><Sparkles size={18} /><span className="text-sm">Modo AMS</span></div>
-                          <button onClick={() => updateConfig('amsMode', !config.amsMode)} className={`w-12 h-6 rounded-full transition relative ${config.amsMode ? 'bg-cyan-500' : 'bg-zinc-700'}`}><div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition ${config.amsMode ? 'translate-x-6' : ''}`} /></button>
+                          <div className="flex items-center gap-2">
+                            <Sparkles size={18} />
+                            <span className="text-sm">Modo AMS</span>
+                          </div>
+                          <button
+                            onClick={() => updateConfig('amsMode', !config.amsMode)}
+                            className={`w-12 h-6 rounded-full transition relative ${config.amsMode ? 'bg-cyan-500' : 'bg-zinc-700'}`}
+                          >
+                            <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition ${config.amsMode ? 'translate-x-6' : ''}`} />
+                          </button>
                         </div>
+                        
+                        {config.amsMode && (
+                          <div className="flex items-start gap-2 mt-3 p-2 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                            <AlertCircle size={14} />
+                            <span className="text-xs text-orange-400">
+                              Riesgo +{((selectedMaterial.amsRisk - 1) * 100).toFixed(0)}% por purga
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -353,24 +547,69 @@
                   {/* Step 2 */}
                   {step === 2 && (
                     <div className="space-y-5 animate-fade-in">
-                      <h2 className="text-2xl font-bold text-white mb-6">⏱️ Datos</h2>
+                      <h2 className="text-2xl font-bold text-white mb-6">⏱️ Datos de Impresión</h2>
+                      
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
-                        <label className="block text-sm text-zinc-400 mb-4 flex items-center gap-2"><Clock /> Tiempo (Bambu Studio)</label>
+                        <label className="block text-sm text-zinc-400 mb-4 flex items-center gap-2">
+                          <Clock />
+                          Tiempo (desde Bambu Studio)
+                        </label>
+                        
                         <div className="bg-zinc-800 rounded-xl p-6 text-center mb-4">
-                          <input type="number" step="0.1" value={print.printHours || ''} onChange={(e) => updatePrint('printHours', parseFloat(e.target.value) || 0)} className="w-full bg-transparent text-center text-5xl font-bold text-white focus:outline-none" placeholder="0.0" />
-                          <div className="text-sm text-zinc-500 mt-2">horas (ej: 6.5 = 6h 30m)</div>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={print.printHours || ''}
+                            onChange={(e) => updatePrint('printHours', parseFloat(e.target.value) || 0)}
+                            className="w-full bg-transparent text-center text-5xl font-bold text-white focus:outline-none"
+                            placeholder="0.0"
+                          />
+                          <div className="text-sm text-zinc-500 mt-2">horas (ej: 6.7 = 6h 42min)</div>
                         </div>
+
+                        {print.printHours > 0 && (
+                          <div className="text-center text-xs text-cyan-400 font-mono bg-cyan-500/10 p-2 rounded-lg mb-4">
+                            ≈ {parseDecimalHours(print.printHours).hours}h {parseDecimalHours(print.printHours).minutes}min
+                          </div>
+                        )}
+
                         <div className="pt-4 border-t border-zinc-800">
-                          <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-2"><Snowflake /> Enfriamiento</label>
-                          <input type="number" value={print.coolMinutes || selectedMaterial.coolMinutes} onChange={(e) => updatePrint('coolMinutes', parseInt(e.target.value) || 0)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500" />
+                          <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-2">
+                            <Snowflake />
+                            Enfriamiento (automático)
+                          </label>
+                          <input
+                            type="number"
+                            value={print.coolMinutes || selectedMaterial.coolMinutes}
+                            onChange={(e) => updatePrint('coolMinutes', parseInt(e.target.value) || 0)}
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500"
+                          />
+                          <p className="text-xs text-zinc-500 mt-2">
+                            Recomendado {selectedMaterial.name}: {selectedMaterial.coolMinutes} min
+                          </p>
                         </div>
                       </div>
+
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
-                        <label className="block text-sm text-zinc-400 mb-4 flex items-center gap-2"><Package /> Costo Material (Total COP)</label>
+                        <label className="block text-sm text-zinc-400 mb-4 flex items-center gap-2">
+                          <Package />
+                          Costo Material
+                        </label>
+                        
                         <div className="bg-zinc-800 rounded-xl p-4 mb-3">
-                          <input type="number" value={print.materialCost || ''} onChange={(e) => updatePrint('materialCost', parseFloat(e.target.value) || 0)} className="w-full bg-transparent text-right text-3xl font-bold text-cyan-400 focus:outline-none" placeholder="0" />
+                          <div className="text-xs text-zinc-500 mb-2">Total desde Bambu (COP)</div>
+                          <input
+                            type="number"
+                            value={print.materialCost || ''}
+                            onChange={(e) => updatePrint('materialCost', parseFloat(e.target.value) || 0)}
+                            className="w-full bg-transparent text-right text-3xl font-bold text-cyan-400 focus:outline-none"
+                            placeholder="0"
+                          />
                         </div>
-                        <div className="bg-zinc-800/50 rounded-lg p-3 text-xs text-zinc-500">💡 Usa el costo total en pesos que muestra Bambu Studio</div>
+
+                        <div className="bg-zinc-800/50 rounded-lg p-3 text-xs text-zinc-500">
+                          💡 Usa el costo total que muestra Bambu Studio
+                        </div>
                       </div>
                     </div>
                   )}
@@ -378,18 +617,77 @@
                   {/* Step 3 */}
                   {step === 3 && (
                     <div className="space-y-5 animate-fade-in">
-                      <h2 className="text-2xl font-bold text-white mb-6">👤 Esfuerzo</h2>
+                      <h2 className="text-2xl font-bold text-white mb-6">👤 Complejidad</h2>
+                      
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
-                        <div className="flex justify-between items-center mb-4"><label className="text-sm text-zinc-400">Complejidad Técnica</label><span className="text-2xl font-bold text-cyan-400">{labor.complexity}%</span></div>
-                        <input type="range" min="10" max="100" step="10" value={labor.complexity} onChange={(e) => updateLabor('complexity', parseInt(e.target.value))} className="w-full" />
-                        <div className="flex justify-between text-xs text-zinc-600 mt-3 px-1"><span>Fácil</span><span>Medio</span><span>Experto</span></div>
-                      </div>
-                      <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
-                        <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><Box /> Hardware Extra (BOM)</h3>
-                        <div className="space-y-2 mb-3">
-                          {labor.bom.length === 0 ? (<div className="text-xs text-zinc-500 italic text-center py-4">Sin componentes</div>) : (labor.bom.map(item => (<div key={item.id} className="flex justify-between items-center bg-zinc-800 p-3 rounded-lg"><span className="text-sm">{item.name}</span><div className="flex items-center gap-3"><span className="text-sm font-mono text-zinc-400">${item.cost.toLocaleString('es-CO')}</span><button onClick={() => removeBomItem(item.id)} className="text-red-400"><Trash2 size={16} /></button></div></div>)))}
+                        <div className="flex justify-between items-center mb-4">
+                          <label className="text-sm text-zinc-400">Complejidad Técnica</label>
+                          <span className="text-2xl font-bold text-cyan-400">{labor.complexity}%</span>
                         </div>
-                        <button onClick={() => setShowBomDialog(true)} className="w-full py-3 bg-zinc-800 rounded-lg text-sm text-cyan-400 border border-zinc-700 hover:border-cyan-500 flex items-center justify-center gap-2"><Plus size={18} /> Agregar</button>
+                        
+                        <input
+                          type="range"
+                          min="10"
+                          max="100"
+                          step="10"
+                          value={labor.complexity}
+                          onChange={(e) => updateLabor('complexity', parseInt(e.target.value))}
+                          className="w-full"
+                        />
+                        
+                        <div className="flex justify-between text-xs text-zinc-600 mt-3 px-1">
+                          <span>Fácil</span>
+                          <span>Medio</span>
+                          <span>Experto</span>
+                        </div>
+
+                        <div className="mt-6 p-3 bg-zinc-800/50 rounded-lg text-xs space-y-2">
+                          <div className="flex justify-between text-zinc-400">
+                            <span>Base:</span>
+                            <span className="text-white font-mono">$20.000</span>
+                          </div>
+                          <div className="flex justify-between text-zinc-400">
+                            <span>Con {labor.complexity}%:</span>
+                            <span className="text-cyan-400 font-mono font-bold">
+                              ${(20000 * (1 + labor.complexity / 100)).toFixed(0).toLocaleString('es-CO')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
+                        <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                          <Box />
+                          Hardware Extra (BOM)
+                        </h3>
+                        
+                        <div className="space-y-2 mb-3">
+                          {labor.bom.length === 0 ? (
+                            <div className="text-xs text-zinc-500 italic text-center py-4">
+                              Sin componentes
+                            </div>
+                          ) : (
+                            labor.bom.map(item => (
+                              <div key={item.id} className="flex justify-between items-center bg-zinc-800 p-3 rounded-lg">
+                                <span className="text-sm">{item.name}</span>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-sm font-mono text-zinc-400">${item.cost.toLocaleString('es-CO')}</span>
+                                  <button onClick={() => removeBomItem(item.id)} className="text-red-400">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => setShowBomDialog(true)}
+                          className="w-full py-3 bg-zinc-800 rounded-lg text-sm text-cyan-400 border border-zinc-700 hover:border-cyan-500 flex items-center justify-center gap-2"
+                        >
+                          <Plus size={18} />
+                          Agregar
+                        </button>
                       </div>
                     </div>
                   )}
@@ -397,74 +695,221 @@
                   {/* Step 4 */}
                   {step === 4 && (
                     <div className="space-y-5 animate-fade-in">
-                      <h2 className="text-2xl font-bold text-white mb-6">📦 Finalizar</h2>
+                      <h2 className="text-2xl font-bold text-white mb-6">📦 Logística</h2>
+                      
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
-                        <label className="block text-sm text-zinc-400 mb-3 flex items-center gap-2"><Truck /> Envío</label>
-                        <div className="space-y-2">{SHIPPING_OPTIONS.map(option => (<button key={option.id} onClick={() => updateLogistics('shipping', option.id)} className={`w-full p-4 rounded-xl border-2 transition flex items-center justify-between ${logistics.shipping === option.id ? 'border-cyan-500 bg-cyan-500/10' : 'border-zinc-700 bg-zinc-800'}`}><div className="flex items-center gap-3"><div className="text-2xl">{option.icon}</div><div className="text-sm font-semibold">{option.name}</div></div><div className="text-sm font-bold">{option.cost === 0 ? 'Gratis' : `$${option.cost.toLocaleString('es-CO')}`}</div></button>))}</div>
+                        <label className="block text-sm text-zinc-400 mb-3 flex items-center gap-2">
+                          <Truck />
+                          Envío
+                        </label>
+                        
+                        <div className="space-y-2">
+                          {SHIPPING_OPTIONS.map(option => (
+                            <button
+                              key={option.id}
+                              onClick={() => updateLogistics('shipping', option.id)}
+                              className={`w-full p-4 rounded-xl border-2 transition flex items-center justify-between ${
+                                logistics.shipping === option.id
+                                  ? 'border-cyan-500 bg-cyan-500/10'
+                                  : 'border-zinc-700 bg-zinc-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="text-2xl">{option.icon}</div>
+                                <div className="text-sm font-semibold">{option.name}</div>
+                              </div>
+                              <div className="text-sm font-bold">
+                                {option.cost === 0 ? 'Gratis' : `$${option.cost.toLocaleString('es-CO')}`}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
                       </div>
+
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
                         <label className="block text-sm text-zinc-400 mb-3">Embalaje</label>
-                        <select value={logistics.packaging} onChange={(e) => updateLogistics('packaging', e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-500">{PACKAGING.map(p => (<option key={p.id} value={p.id}>{p.name} - ${p.cost.toLocaleString('es-CO')}</option>))}</select>
+                        <select
+                          value={logistics.packaging}
+                          onChange={(e) => updateLogistics('packaging', e.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-500"
+                        >
+                          {PACKAGING.map(p => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} - ${p.cost.toLocaleString('es-CO')}
+                            </option>
+                          ))}
+                        </select>
                       </div>
+
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
-                        <label className="block text-sm text-zinc-400 mb-3 flex items-center gap-2"><DollarSign /> Pasarela</label>
-                        <select value={logistics.gateway} onChange={(e) => updateLogistics('gateway', e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-500 mb-5">{GATEWAYS.map(g => (<option key={g.id} value={g.id}>{g.name} {g.rate > 0 ? `(${g.rate}%)` : '(0%)'}</option>))}</select>
-                        <label className="block text-sm text-zinc-400 mb-3 flex items-center gap-2"><TrendingUp /> Margen</label>
-                        <div className="flex items-center gap-3"><input type="number" value={logistics.profitMargin} onChange={(e) => updateLogistics('profitMargin', parseFloat(e.target.value) || 0)} className="w-24 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-center text-2xl font-bold text-cyan-400 focus:outline-none focus:border-cyan-500" /><span className="text-2xl text-white">%</span><div className="text-xs text-zinc-500 flex-1">≈ <span className="text-white font-bold">{(1 / (1 - logistics.profitMargin / 100)).toFixed(1)}x</span></div></div>
+                        <label className="block text-sm text-zinc-400 mb-3 flex items-center gap-2">
+                          <DollarSign />
+                          Pasarela
+                        </label>
+                        <select
+                          value={logistics.gateway}
+                          onChange={(e) => updateLogistics('gateway', e.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white font-semibold focus:outline-none focus:border-cyan-500 mb-5"
+                        >
+                          {GATEWAYS.map(g => (
+                            <option key={g.id} value={g.id}>
+                              {g.name} {g.rate > 0 ? `(${g.rate}%)` : '(0%)'}
+                            </option>
+                          ))}
+                        </select>
+
+                        <label className="block text-sm text-zinc-400 mb-3 flex items-center gap-2">
+                          <TrendingUp />
+                          Margen de Ganancia
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="number"
+                            value={logistics.profitMargin}
+                            onChange={(e) => updateLogistics('profitMargin', parseFloat(e.target.value) || 0)}
+                            className="w-24 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-center text-2xl font-bold text-cyan-400 focus:outline-none focus:border-cyan-500"
+                          />
+                          <span className="text-2xl text-white">%</span>
+                          <div className="text-xs text-zinc-500 flex-1">
+                            ≈ Multiplicar por <span className="text-white font-bold">{(1 / (1 - logistics.profitMargin / 100)).toFixed(1)}x</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {/* Step 5 */}
                   {step === 5 && results && (
-                    <div className="space-y-5 animate-fade-in pb-10">
+                    <div className="space-y-5 animate-fade-in">
                       <div className="text-center mb-8 bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-3xl p-8 border border-zinc-700 shadow-2xl">
-                        <p className="text-zinc-500 text-xs uppercase tracking-widest mb-2">Precio Final</p>
-                        <h1 className="text-6xl font-black text-white mb-3 tracking-tight">${results.finalPrice.toLocaleString('es-CO')}</h1>
-                        <div className="flex justify-center gap-4 text-xs font-mono text-zinc-500"><span>USD ${(results.finalPrice / 4100).toFixed(2)}</span><span>|</span><span>EUR €{(results.finalPrice / 4400).toFixed(2)}</span></div>
-                      </div>
-                      <div className="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
-                        <div className="bg-zinc-800 p-3 text-center"><span className="text-xs font-bold text-zinc-400 uppercase">Detalles</span></div>
-                        <div className="p-5 space-y-4 text-sm">
-                          <div className="flex justify-between"><span className="text-zinc-400">Costos Duros</span><span className="font-mono text-white font-bold">${results.hardCosts.toFixed(0).toLocaleString('es-CO')}</span></div>
-                          <div className="text-xs text-zinc-600 pl-4 space-y-1">
-                            <div className="flex justify-between"><span>• Energía</span><span>${results.breakdown.energy.toFixed(0).toLocaleString('es-CO')}</span></div>
-                            <div className="flex justify-between"><span>• Desgaste</span><span>${results.breakdown.wear.toFixed(0).toLocaleString('es-CO')}</span></div>
-                            <div className="flex justify-between"><span>• Material</span><span>${results.breakdown.material.toFixed(0).toLocaleString('es-CO')}</span></div>
-                          </div>
-                          <div className="flex justify-between"><span className="text-zinc-400">Mano de Obra</span><span className="font-mono text-white font-bold">${results.softCosts.toFixed(0).toLocaleString('es-CO')}</span></div>
-                          <div className="flex justify-between"><span className="text-zinc-400">Logística</span><span className="font-mono text-white font-bold">${results.logisticsCosts.toFixed(0).toLocaleString('es-CO')}</span></div>
-                          <div className="h-px bg-zinc-800" />
-                          <div className="flex justify-between text-lg pt-2"><span className="text-cyan-400 font-bold">💰 Ganancia Neta</span><span className="font-mono text-cyan-400 font-black">${results.netProfit.toFixed(0).toLocaleString('es-CO')}</span></div>
-                          {results.feeEstimate > 0 && (<div className="flex justify-between text-xs text-orange-400 pt-2 border-t border-zinc-800"><span>Comisión (inc.)</span><span>-${results.feeEstimate.toFixed(0).toLocaleString('es-CO')}</span></div>)}
+                        <p className="text-zinc-500 text-xs uppercase tracking-widest mb-2">Precio a Cobrar</p>
+                        <h1 className="text-6xl font-black text-white mb-3 tracking-tight">
+                          ${results.finalPrice.toLocaleString('es-CO')}
+                        </h1>
+                        <div className="flex justify-center gap-4 text-xs font-mono text-zinc-500">
+                          <span>USD ${(results.finalPrice / 4100).toFixed(2)}</span>
+                          <span>|</span>
+                          <span>EUR €{(results.finalPrice / 4400).toFixed(2)}</span>
                         </div>
                       </div>
+
+                      <div className="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
+                        <div className="bg-zinc-800 p-3 text-center">
+                          <span className="text-xs font-bold text-zinc-400 uppercase">Estructura</span>
+                        </div>
+                        
+                        <div className="p-5 space-y-4 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">Costos Duros</span>
+                            <span className="font-mono text-white font-bold">${results.hardCosts.toFixed(0).toLocaleString('es-CO')}</span>
+                          </div>
+                          <div className="text-xs text-zinc-600 pl-4 space-y-1">
+                            <div className="flex justify-between">
+                              <span>• Energía</span>
+                              <span>${results.breakdown.energy.toFixed(0).toLocaleString('es-CO')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>• Desgaste</span>
+                              <span>${results.breakdown.wear.toFixed(0).toLocaleString('es-CO')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>• Material</span>
+                              <span>${results.breakdown.material.toFixed(0).toLocaleString('es-CO')}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">Mano de Obra</span>
+                            <span className="font-mono text-white font-bold">${results.softCosts.toFixed(0).toLocaleString('es-CO')}</span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">Logística</span>
+                            <span className="font-mono text-white font-bold">${results.logisticsCosts.toFixed(0).toLocaleString('es-CO')}</span>
+                          </div>
+
+                          <div className="h-px bg-zinc-800" />
+
+                          <div className="flex justify-between text-lg pt-2">
+                            <span className="text-cyan-400 font-bold">💰 Ganancia Neta</span>
+                            <span className="font-mono text-cyan-400 font-black">${results.netProfit.toFixed(0).toLocaleString('es-CO')}</span>
+                          </div>
+
+                          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3 text-xs text-cyan-400">
+                            ✅ Ganancia 100% limpia (todo descontado)
+                          </div>
+
+                          {results.feeEstimate > 0 && (
+                            <div className="flex justify-between text-xs text-orange-400 pt-2 border-t border-zinc-800">
+                              <span>Comisión (incluida)</span>
+                              <span>-${results.feeEstimate.toFixed(0).toLocaleString('es-CO')}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="space-y-3 pt-4">
-                        <button onClick={shareQuote} className="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-3"><Share2 size={20} /> Copiar</button>
-                        <button onClick={saveToHistory} className="w-full bg-zinc-800 text-white font-bold py-4 rounded-xl border border-zinc-700 flex items-center justify-center gap-3"><Share2 size={20} /> Guardar</button>
-                        <button onClick={resetCalculator} className="w-full bg-purple-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3"><ArrowLeft size={20} /> Nuevo</button>
+                        <button
+                          onClick={shareQuote}
+                          className="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-3"
+                        >
+                          <Share2 size={20} />
+                          Copiar Resumen
+                        </button>
+
+                        <button
+                          onClick={saveToHistory}
+                          className="w-full bg-zinc-800 text-white font-bold py-4 rounded-xl border border-zinc-700 flex items-center justify-center gap-3"
+                        >
+                          <Share2 size={20} />
+                          Guardar Cotización
+                        </button>
+
+                        <button
+                          onClick={resetCalculator}
+                          className="w-full bg-purple-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3"
+                        >
+                          <ArrowLeft size={20} />
+                          Nueva Cotización
+                        </button>
                       </div>
                     </div>
                   )}
-
                 </div>
               </main>
 
-              {/* Footer Fijo */}
+              {/* Footer */}
               {step < 5 && (
-                <footer className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 p-4 z-50 safe-area-bottom">
+                <footer className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 p-4 z-50">
                   <div className="max-w-md mx-auto flex gap-3">
-                    {step > 1 && (<button onClick={prevStep} className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-zinc-700 text-zinc-400 bg-zinc-800"><ChevronLeft /> Atrás</button>)}
-                    <button onClick={nextStep} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold shadow-lg">{step === 4 ? 'CALCULAR' : 'Siguiente'} <ChevronRight /></button>
+                    {step > 1 && (
+                      <button
+                        onClick={prevStep}
+                        className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-zinc-700 text-zinc-400 bg-zinc-800"
+                      >
+                        <ChevronLeft />
+                        Atrás
+                      </button>
+                    )}
+                    <button
+                      onClick={nextStep}
+                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold shadow-lg"
+                    >
+                      {step === 4 ? 'CALCULAR' : 'Siguiente'}
+                      <ChevronRight />
+                    </button>
                   </div>
                 </footer>
               )}
 
-              {/* Dialogo */}
+              {/* BOM Dialog */}
               {showBomDialog && (
-                <div className="fixed inset-0 bg-black/80 flex items-end z-[60] animate-fade-in" onClick={() => setShowBomDialog(false)}>
-                  <div className="bg-zinc-900 rounded-t-3xl p-6 w-full max-w-md mx-auto border-t border-zinc-700 animate-slide-up" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-lg font-bold text-white mb-4">Agregar Item</h3>
+                <div className="fixed inset-0 bg-black/80 flex items-end z-50 animate-fade-in" onClick={() => setShowBomDialog(false)}>
+                  <div 
+                    className="bg-zinc-900 rounded-t-3xl p-6 w-full max-w-md mx-auto border-t border-zinc-700 animate-slide-up"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <h3 className="text-lg font-bold text-white mb-4">Agregar Componente</h3>
                     <BomForm onSubmit={addBomItem} onCancel={() => setShowBomDialog(false)} />
                   </div>
                 </div>
@@ -474,6 +919,55 @@
         }
 
         ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+    
+    <script>
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'sicma-v1';
+                self.addEventListener('install', (e) => {
+                    e.waitUntil(
+                        caches.open(CACHE_NAME).then(cache => cache.addAll(['/']))
+                    );
+                });
+                self.addEventListener('fetch', (e) => {
+                    e.respondWith(
+                        caches.match(e.request).then(response => response || fetch(e.request))
+                    );
+                });
+            `;
+            
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl).then(() => {
+                console.log('✅ PWA Activada');
+            });
+        }
+        
+        // Manifest dinámico
+        const manifest = {
+            name: "SICMA Pro",
+            short_name: "SICMA",
+            description: "Calculadora profesional para impresión 3D",
+            start_url: window.location.href,
+            display: "standalone",
+            background_color: "#0a0a0a",
+            theme_color: "#121212",
+            orientation: "portrait",
+            icons: [
+                {
+                    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAADGklEQVR4nO2bS2gTURSGv4yxammtilqLCxcu3LhQcOFCRRBBUHGhC1eu3Lhw4UZBUFwIgguhuFBRUVBQEAS1uBAEwYULxYWIL0RFfCCKWqzY1jTjyYVTGJqmycy9mUwm+eFAyMy959z/zpx7Z+6dBIPBYDAYDAaDwWAwGAwGQ0nQDqwGNgNbgY1AJ9ABtAJNQGPweRPQAmwANgFrgLXAMqAd+CMADgMjwATwE5gEpoCfwDgwBnwDvgJfgCHgE/AR+AB8AD4D74H3wDvgLfAGeA28Al4CL4DnwDPgKfAEeAw8Ah4CD4EB4D5wD7gL3AFuA7eAm8AN4DpwDbgKXAEuA5eAi8AF4DxwDjgLnAH6gT7gFHASOAGcBI4Dx4BjwFHgCHAYOAQcBA4AB4D9wD5gL7AH2A3sAnYCO4AdwHZgG7AV2AJsBjYBG4H1wDpgLbAGWA2sAlYCK4DlwDJgKbAEWAwsAhYCC4D5QAPmIw08Al4D/0qc18BT4AnwGHgEPAQeAPeB+8A94C5wB7gN3AJuAjeA68A14CpwBbgMXAIuAheA88A54CxwBugH+oBTwEngBHAcOAYcBY4Ah4FDwEHgALAf2AfsLaQD1JM/VXECu4BdwE5gB7Ad2AZsBbYAm4FNwEZgfTEd4BCwGqgrc34Bp4GzwBngNNAP9AGngJPACeA4cAw4ChwBDgOHgIPAAWA/sA/YC+wBdgO7St0B5gN1wAhQX+b8Bq4CV4ArwGXgEnARuACcB84BZ4u5BdYATwr8bCXHGHALuAncAK4D14qxBRqBd8DckucH8BD4B3zPn3vAADAADOoyH0gBKWAAmA+0AHOBE0W8F5gPzAGWAPOAdmAD0Ak0Ay2By6sZaANWAcuBJUAz0AJ0Bl7fz0Hg2R+3Uw+8AGYBPxSTiuZF8FnNkxizgAlgFvCxkqSi+QSMyXs+Aw+q6QFUB/BdXm9cB+8pqBVYgCFLCuhxXdLGUKLA60rX4b+6vL0AQ5YU0OO6pI2h5D/TLvfpcR0eiCz3Bf/FZ+wejCEiuoAI8F/gv7OJqf8KZjAYDAaDwWAwGAwGg8HAf+Q/tJfD+R8FYS8AAAAASUVORK5CYII=",
+                    sizes: "192x192",
+                    type: "image/png"
+                }
+            ]
+        };
+        
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        document.getElementById('manifest-placeholder').href = manifestURL;
     </script>
 </body>
 </html>
