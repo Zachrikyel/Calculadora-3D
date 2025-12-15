@@ -20,22 +20,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        * { -webkit-tap-highlight-color: transparent; }
         
-        /* CORRECCIÓN DE VIEWPORT DINÁMICO */
+        /* CORRECCIÓN DINÁMICA DE VIEWPORT */
         body { 
             margin: 0; 
             background: #0a0a0a; 
             overscroll-behavior: none; 
-            /* Esto bloquea el body al tamaño de la pantalla */
+            /* Esto previene el rebote en iOS y fija el cuerpo a la pantalla visible */
             position: fixed;
             width: 100%;
             height: 100%;
         }
         
         #root { 
-            /* Altura dinámica que respeta la barra de direcciones */
-            height: 100vh; /* Fallback */
+            /* Altura fallback */
+            height: 100vh; 
+            /* Altura dinámica real */
             height: 100dvh; 
             overflow: hidden; 
             display: flex;
@@ -222,6 +223,7 @@
             printer: 'p1s',
             nozzle: 0.4,
             material: 'pla',
+            materialCostPerKg: 85000,
             amsMode: false
           });
 
@@ -238,8 +240,8 @@
           const [logistics, setLogistics] = useState({
             shipping: 'pickup',
             packaging: 'standard',
-            gateway: 'nequi',
-            profitMargin: 60
+            gateway: 'wompi',
+            profitMargin: 30
           });
 
           const [results, setResults] = useState(null);
@@ -390,6 +392,7 @@
               printer: 'p1s',
               nozzle: 0.4,
               material: 'pla',
+              materialCostPerKg: 85000,
               amsMode: false
             });
             setPrint({
@@ -404,8 +407,8 @@
             setLogistics({
               shipping: 'pickup',
               packaging: 'standard',
-              gateway: 'nequi',
-              profitMargin: 60
+              gateway: 'wompi',
+              profitMargin: 30
             });
             setResults(null);
           };
@@ -430,7 +433,6 @@
           const selectedNozzle = NOZZLES.find(n => n.size === config.nozzle);
 
           return (
-            // CAMBIO CLAVE AQUI: h-full en vez de min-h-screen
             <div className="h-full bg-zinc-950 text-zinc-100 flex flex-col">
               {/* Header */}
               <header className="bg-zinc-900 border-b border-zinc-800 p-4 shrink-0 z-50">
@@ -456,7 +458,7 @@
               </header>
 
               {/* Main Content */}
-              <main className="flex-1 overflow-y-auto pb-24">
+              <main className="flex-1 overflow-y-auto pb-24" style={{ WebkitOverflowScrolling: 'touch' }}>
                 <div className="max-w-md mx-auto p-5">
                   
                   {/* Step 1 */}
@@ -535,6 +537,14 @@
                           ))}
                         </select>
 
+                        <label className="block text-sm text-zinc-400 mb-2">Costo Filamento (COP/Kg)</label>
+                        <input
+                          type="number"
+                          value={config.materialCostPerKg}
+                          onChange={(e) => updateConfig('materialCostPerKg', parseFloat(e.target.value))}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500 mb-4"
+                        />
+
                         <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg">
                           <div className="flex items-center gap-2">
                             <Sparkles size={18} />
@@ -609,11 +619,11 @@
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
                         <label className="block text-sm text-zinc-400 mb-4 flex items-center gap-2">
                           <Package />
-                          Costo Material
+                          Cantidad Material Total
                         </label>
                         
                         <div className="bg-zinc-800 rounded-xl p-4 mb-3">
-                          <div className="text-xs text-zinc-500 mb-2">Total desde Bambu (COP)</div>
+                          <div className="text-xs text-zinc-500 mb-2">Valor desde Bambu Studio </div>
                           <input
                             type="number"
                             value={print.materialCost || ''}
@@ -624,7 +634,7 @@
                         </div>
 
                         <div className="bg-zinc-800/50 rounded-lg p-3 text-xs text-zinc-500">
-                          💡 Usa el costo total que muestra Bambu Studio
+                          💡 Usa la cantidad total que muestra Bambu Studio
                         </div>
                       </div>
                     </div>
