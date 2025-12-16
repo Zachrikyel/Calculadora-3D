@@ -21,31 +21,28 @@
     
     <style>
         * { -webkit-tap-highlight-color: transparent; }
-        
-        /* --- ZONA DE AJUSTE DYNAMIC VIEWPORT --- */
-       body { 
-    margin: 0; 
-    background: #0a0a0a; 
-    overscroll-behavior: none; 
-    /* NO usar position fixed aquí */
-}
-
-#root { 
-    height: 100vh; /* Fallback */
-    height: 100dvh; /* Dynamic viewport */
-    overflow: hidden; 
-}
-        
+        body { 
+            margin: 0; 
+            background: #0a0a0a; 
+            overscroll-behavior: none; 
+            /* Fix para iOS: Evita que toda la pagina rebote */
+            position: fixed; 
+            width: 100%;
+            height: 100%;
+        }
         #root { 
             /* Altura Fallback */
             height: 100vh; 
-            /* Altura Dinámica Real */
+            /* Altura Dinamica Real (Ignora barras de navegacion) */
             height: 100dvh; 
             overflow: hidden; 
+            /* Flexbox para obligar al footer a quedarse abajo */
             display: flex;
             flex-direction: column;
         }
-        /* -------------------------------------- */
+        @supports (height: 100dvh) {
+            #root { height: 100dvh; }
+        }
         
         @keyframes fade-in {
           from { opacity: 0; }
@@ -66,6 +63,7 @@
         /* Range input styling */
         input[type="range"] {
             -webkit-appearance: none;
+            appearance: none;
             width: 100%;
             height: 8px;
             background: #27272a;
@@ -462,7 +460,7 @@
               results
             };
             
-            const txt = `📋 COTIZACIÓN GUARDADA #${quote.id}\n${new Date(quote.date).toLocaleString('es-CO')}\n\nPrecio: $${results.finalPrice.toLocaleString('es-CO')}\nGanancia: $${results.netProfit.toLocaleString('es-CO')}\nMargen: ${pricing.profitMargin}%`;
+            const txt = `📋 COTIZACIÓN GUARDADA #${quote.id}\n${new Date(quote.date).toLocaleString('es-CO')}\n\nPrecio: ${results.finalPrice.toLocaleString('es-CO')}\nGanancia: ${results.netProfit.toLocaleString('es-CO')}\nMargen: ${pricing.profitMargin}%`;
             navigator.clipboard.writeText(txt);
             alert('✅ ¡Cotización copiada al portapapeles!');
           };
@@ -524,10 +522,9 @@
           const selectedNozzle = NOZZLES.find(n => n.size === config.nozzle);
 
           return (
-            // CAMBIO AQUÍ: h-full en lugar de min-h-screen
-            <div className="h-full bg-zinc-950 text-zinc-100 flex flex-col">
+            <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
               {/* Header */}
-              <header className="bg-zinc-900 border-b border-zinc-800 p-4 shrink-0 z-50">
+              <header className="bg-zinc-900 border-b border-zinc-800 p-4 sticky top-0 z-50">
                 <div className="flex items-center justify-between max-w-md mx-auto">
                   <div>
                     <h1 className="text-lg font-bold text-cyan-400 tracking-wider">SICMA</h1>
@@ -634,8 +631,9 @@
                           type="number"
                           value={config.materialCostPerKg}
                           onChange={(e) => updateConfig('materialCostPerKg', parseFloat(e.target.value))}
-                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500 mb-4"
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500 mb-2"
                         />
+                        <p className="text-xs text-zinc-500 mb-4">Precio por kilogramo del rollo que compraste</p>
 
                         <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg">
                           <div className="flex items-center gap-2">
@@ -711,7 +709,7 @@
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
                         <label className="block text-sm text-zinc-400 mb-4 flex items-center gap-2">
                           <Package />
-                          Costo Material Total
+                          Cantidad Material Total
                         </label>
                         
                         <div className="bg-zinc-800 rounded-xl p-4 mb-3">
@@ -726,7 +724,7 @@
                         </div>
 
                         <div className="bg-zinc-800/50 rounded-lg p-3 text-xs text-zinc-500">
-                          💡 Usa el costo total que muestra Bambu Studio
+                          💡 Usa la cantidad total de material que muestra Bambu Studio 💡
                         </div>
                       </div>
                     </div>
@@ -812,7 +810,7 @@
                         </div>
 
                         <p className="text-xs text-zinc-500 mt-3">
-                          💡 Activa solo si la pieza requiere estos acabados
+                          💡 Activa solo si la pieza requiere estos acabados 💡
                         </p>
                       </div>
                     </div>
@@ -1146,19 +1144,6 @@
                     </button>
                   </div>
                 </footer>
-              )}
-
-              {/* BOM Dialog */}
-              {showBomDialog && (
-                <div className="fixed inset-0 bg-black/80 flex items-end z-50 animate-fade-in" onClick={() => setShowBomDialog(false)}>
-                  <div 
-                    className="bg-zinc-900 rounded-t-3xl p-6 w-full max-w-md mx-auto border-t border-zinc-700 animate-slide-up"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <h3 className="text-lg font-bold text-white mb-4">Agregar Componente</h3>
-                    <BomForm onSubmit={addBomItem} onCancel={() => setShowBomDialog(false)} />
-                  </div>
-                </div>
               )}
             </div>
           );
