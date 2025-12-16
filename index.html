@@ -21,7 +21,7 @@
     
     <style>
         * { -webkit-tap-highlight-color: transparent; }
-            body { 
+        body { 
             margin: 0; 
             background: #0a0a0a; 
             overscroll-behavior: none; 
@@ -171,16 +171,16 @@
           },
           medium: {
             name: 'Media',
-            postProcessMinutes: 120,
+            postProcessMinutes: 75,
             operatorMinutes: 5,
-            failureRisk: 0.20,
+            failureRisk: 0.15,
             suppliesCost: 3000
           },
           hard: {
             name: 'Difícil',
-            postProcessMinutes: 240,
+            postProcessMinutes: 120,
             operatorMinutes: 5,
-            failureRisk: 0.30,
+            failureRisk: 0.20,
             suppliesCost: 5000
           }
         };
@@ -442,7 +442,8 @@
 
           const shareQuote = () => {
             const additionalText = results.additionalCharge > 0 ? `\n💎 Cargo adicional: ${results.additionalCharge.toLocaleString('es-CO')} (se cobra aparte)` : '';
-            const txt = `*COTIZACIÓN 3D PROFESIONAL*\n━━━━━━━━━━━━━━━━━━━\n⏱️ Tiempo: ${print.printHours.toFixed(1)}h\n🚚 Envío incluido\n💳 Pago digital disponible\n\n💰 *TOTAL: ${results.finalPrice.toLocaleString('es-CO')} COP*${additionalText}\n━━━━━━━━━━━━━━━━━━━\n✨ Tu ganancia neta: ${results.netProfit.toLocaleString('es-CO')}\n📊 Margen: ${pricing.profitMargin}%\n_Validez: 5 días_`;
+            const finishesText = (labor.primerToggle || labor.lacquerToggle) ? `\n✨ Acabados: ${labor.primerToggle ? 'Primer' : ''}${labor.primerToggle && labor.lacquerToggle ? ' + ' : ''}${labor.lacquerToggle ? 'Laca' : ''}` : '';
+            const txt = `*COTIZACIÓN 3D PROFESIONAL*\n━━━━━━━━━━━━━━━━━━━\n⏱️ Tiempo producción: ${results.totalProductionTime.toFixed(1)}h\n🚚 Envío incluido\n💳 Pago digital disponible${finishesText}\n\n💰 *TOTAL: ${results.finalPrice.toLocaleString('es-CO')} COP*${additionalText}\n━━━━━━━━━━━━━━━━━━━\n✨ Tu ganancia neta: ${results.netProfit.toFixed(0).toLocaleString('es-CO')}\n📊 Margen: ${pricing.profitMargin}%\n_Validez: 5 días_`;
             navigator.clipboard.writeText(txt).then(() => {
               alert('✅ ¡Cotización copiada al portapapeles!');
             });
@@ -588,7 +589,7 @@
 
                         <div className="flex justify-between text-xs font-mono mb-4">
                           <span className="text-zinc-500">Consumo: <span className="text-white font-bold">{selectedPrinter.watts}W</span></span>
-                          <span className="text-zinc-500">Desgaste: <span className="text-white font-bold">${selectedPrinter.wear}/h</span></span>
+                          <span className="text-zinc-500">Desgaste: <span className="text-white font-bold">${selectedPrinter.wear.toLocaleString('es-CO')}/h</span></span>
                         </div>
 
                         <div className="pt-4 border-t border-zinc-800">
@@ -824,7 +825,7 @@
                               <Sparkles size={18} />
                               <div>
                                 <div className="text-sm font-semibold">Primer</div>
-                                <div className="text-xs text-zinc-500">+$1,500</div>
+                                <div className="text-xs text-zinc-500">+$1.500</div>
                               </div>
                             </div>
                             <button
@@ -840,7 +841,7 @@
                               <Sparkles size={18} />
                               <div>
                                 <div className="text-sm font-semibold">Laca</div>
-                                <div className="text-xs text-zinc-500">+$1,500</div>
+                                <div className="text-xs text-zinc-500">+$1.500</div>
                               </div>
                             </div>
                             <button
