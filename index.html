@@ -23,15 +23,18 @@
         * { -webkit-tap-highlight-color: transparent; }
         
         /* --- ZONA DE AJUSTE DYNAMIC VIEWPORT --- */
-        body { 
-            margin: 0; 
-            background: #0a0a0a; 
-            overscroll-behavior: none; 
-            /* Fix para bloquear rebote en iOS */
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
+       body { 
+    margin: 0; 
+    background: #0a0a0a; 
+    overscroll-behavior: none; 
+    /* NO usar position fixed aquí */
+}
+
+#root { 
+    height: 100vh; /* Fallback */
+    height: 100dvh; /* Dynamic viewport */
+    overflow: hidden; 
+}
         
         #root { 
             /* Altura Fallback */
