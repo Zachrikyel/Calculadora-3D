@@ -21,25 +21,8 @@
     
     <style>
         * { -webkit-tap-highlight-color: transparent; }
-        body { 
-            margin: 0; 
-            background: #0a0a0a; 
-            overscroll-behavior: none; 
-            /* Fix para iOS: Evita que toda la pagina rebote */
-            position: fixed; 
-            width: 100%;
-            height: 100%;
-        }
-        #root { 
-            /* Altura Fallback */
-            height: 100vh; 
-            /* Altura Dinamica Real (Ignora barras de navegacion) */
-            height: 100dvh; 
-            overflow: hidden; 
-            /* Flexbox para obligar al footer a quedarse abajo */
-            display: flex;
-            flex-direction: column;
-        }
+        body { margin: 0; background: #0a0a0a; overscroll-behavior: none; }
+        #root { height: 100dvh; height: 100vh; overflow: hidden; }
         @supports (height: 100dvh) {
             #root { height: 100dvh; }
         }
@@ -63,7 +46,6 @@
         /* Range input styling */
         input[type="range"] {
             -webkit-appearance: none;
-            appearance: none;
             width: 100%;
             height: 8px;
             background: #27272a;
@@ -724,7 +706,10 @@
                               type="number"
                               min="1"
                               value={print.plateCount}
-                              onChange={(e) => updatePrint('plateCount', parseInt(e.target.value) || 1)}
+                              onChange={(e) => {
+                                const val = e.target.value === '' ? 1 : parseInt(e.target.value);
+                                updatePrint('plateCount', val);
+                              }}
                               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500"
                             />
                           </div>
@@ -753,7 +738,7 @@
                       <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
                         <label className="block text-sm text-zinc-400 mb-4 flex items-center gap-2">
                           <Package />
-                          Cantidad Material
+                          Costo Material Total
                         </label>
                         
                         <div className="bg-zinc-800 rounded-xl p-4 mb-3">
@@ -768,7 +753,7 @@
                         </div>
 
                         <div className="bg-zinc-800/50 rounded-lg p-3 text-xs text-zinc-500">
-                          💡 Usa la cantidad total que muestra Bambu Studio 💡
+                          💡 Usa el costo total que muestra Bambu Studio
                         </div>
                       </div>
                     </div>
@@ -854,7 +839,7 @@
                         </div>
 
                         <p className="text-xs text-zinc-500 mt-3">
-                          💡 Activa solo si la pieza requiere estos acabados 💡
+                          💡 Activa solo si la pieza requiere estos acabados
                         </p>
                       </div>
                     </div>
