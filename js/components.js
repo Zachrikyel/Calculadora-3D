@@ -170,12 +170,12 @@ function Calculator() {
       const material = MATERIALS.find(m => m.id === value);
       state.print.coolMinutes = material.coolMinutes;
     }
-    renderCalculatorWithScroll();
+    renderCalculator();
   };
 
   window.updatePrint = (key, value) => {
     state.print[key] = value;
-    renderCalculatorWithScroll();
+    renderCalculator();
   };
 
   window.updateLabor = (key, value) => {
@@ -241,13 +241,13 @@ function Calculator() {
     } else if (state.step < 6) {
       state.step++;
     }
-    renderCalculator(); // Aquí SÍ podemos perder scroll porque cambiamos de paso
+    renderCalculator(); // Aquí SÍ resetear scroll porque cambiamos de paso
   };
 
   window.prevStep = () => {
     if (state.step > 1) {
       state.step--;
-      renderCalculator(); // Aquí SÍ podemos perder scroll porque cambiamos de paso
+      renderCalculator(); // Aquí SÍ resetear scroll porque cambiamos de paso
     }
   };
 
@@ -435,7 +435,7 @@ function Calculator() {
           <input
             type="number"
             value="${state.config.kwhPrice}"
-            oninput="updateConfig('kwhPrice', parseFloat(this.value) || 0)"
+            onblur="updateConfig('kwhPrice', parseFloat(this.value) || 0)"
             class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-xl font-bold text-cyan-400 focus:outline-none focus:border-cyan-500"
           />
           <p class="text-xs text-zinc-500 mt-2">💡 Recomendado: ~920 COP</p>
@@ -497,7 +497,7 @@ function Calculator() {
           <input
             type="number"
             value="${state.config.materialCostPerKg}"
-            oninput="updateConfig('materialCostPerKg', parseFloat(this.value) || 0)"
+            onblur="updateConfig('materialCostPerKg', parseFloat(this.value) || 0)"
             class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500 mb-2"
           />
           <p class="text-xs text-zinc-500 mb-4">Precio por kilogramo</p>
@@ -545,13 +545,13 @@ function Calculator() {
           <div class="bg-zinc-800 rounded-xl p-6 text-center mb-4">
             <input
               type="number"
-              step="0.1"
+              step="0.01"
               value="${state.print.printHours || ''}"
-              oninput="updatePrint('printHours', parseFloat(this.value) || 0)"
+              onblur="updatePrint('printHours', parseFloat(this.value) || 0)"
               class="w-full bg-transparent text-center text-5xl font-bold text-white focus:outline-none"
               placeholder="0.0"
             />
-            <div class="text-sm text-zinc-500 mt-2">horas (ej: 6.7 = 6h 42min)</div>
+            <div class="text-sm text-zinc-500 mt-2">horas (ej: 4.42 = 4h 25min)</div>
           </div>
 
           ${state.print.printHours > 0 ? `
@@ -594,7 +594,7 @@ function Calculator() {
                 type="number"
                 min="1"
                 value="${state.print.plateCount}"
-                oninput="updatePrint('plateCount', parseInt(this.value) || 1)"
+                onblur="updatePrint('plateCount', parseInt(this.value) || 1)"
                 class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500"
               />
             </div>
@@ -608,7 +608,7 @@ function Calculator() {
             <input
               type="number"
               value="${state.print.coolMinutes || selectedMaterial.coolMinutes}"
-              oninput="updatePrint('coolMinutes', parseInt(this.value) || 0)"
+              onblur="updatePrint('coolMinutes', parseInt(this.value) || 0)"
               class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500"
             />
             <p class="text-xs text-zinc-500 mt-2">
@@ -631,7 +631,7 @@ function Calculator() {
             <input
               type="number"
               value="${state.print.materialCost || ''}"
-              oninput="updatePrint('materialCost', parseFloat(this.value) || 0)"
+              onblur="updatePrint('materialCost', parseFloat(this.value) || 0)"
               class="w-full bg-transparent text-right text-3xl font-bold text-cyan-400 focus:outline-none"
               placeholder="0"
             />
@@ -821,7 +821,7 @@ function Calculator() {
               <input
                 type="number"
                 value="${state.logistics.packagingCustom}"
-                oninput="updateLogistics('packagingCustom', parseFloat(this.value) || 0)"
+                onblur="updateLogistics('packagingCustom', parseFloat(this.value) || 0)"
                 class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-cyan-400 focus:outline-none focus:border-cyan-500"
                 placeholder="Ingrese costo"
               />
@@ -881,7 +881,7 @@ function Calculator() {
             <input
               type="number"
               value="${state.pricing.profitMargin}"
-              oninput="updatePricing('profitMargin', parseFloat(this.value) || 0)"
+              onblur="updatePricing('profitMargin', parseFloat(this.value) || 0)"
               class="w-24 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-center text-2xl font-bold text-cyan-400 focus:outline-none focus:border-cyan-500"
             />
             <span class="text-2xl text-white">%</span>
@@ -902,7 +902,7 @@ function Calculator() {
           <input
             type="number"
             value="${state.pricing.additionalCharge}"
-            oninput="updatePricing('additionalCharge', parseFloat(this.value) || 0)"
+            onblur="updatePricing('additionalCharge', parseFloat(this.value) || 0)"
             class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-xl font-bold text-purple-400 focus:outline-none focus:border-purple-500"
             placeholder="0"
           />
