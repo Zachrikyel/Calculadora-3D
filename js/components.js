@@ -170,27 +170,61 @@ function Calculator() {
       const material = MATERIALS.find(m => m.id === value);
       state.print.coolMinutes = material.coolMinutes;
     }
-    renderCalculator();
+    renderCalculatorWithScroll();
   };
 
   window.updatePrint = (key, value) => {
     state.print[key] = value;
-    renderCalculator();
+    renderCalculatorWithScroll();
   };
 
   window.updateLabor = (key, value) => {
     state.labor[key] = value;
-    renderCalculator();
+    renderCalculatorWithScroll();
   };
 
   window.updateLogistics = (key, value) => {
     state.logistics[key] = value;
-    renderCalculator();
+    renderCalculatorWithScroll();
   };
 
   window.updatePricing = (key, value) => {
     state.pricing[key] = value;
+    renderCalculatorWithScroll();
+  };
+
+  window.renderCalculatorWithScroll = () => {
+    // Guardar posición del scroll
+    const scrollContainer = document.querySelector('main');
+    const scrollPosition = scrollContainer ? scrollContainer.scrollTop : 0;
+    
+    // Re-renderizar
     renderCalculator();
+    
+    // Restaurar posición del scroll después de que el DOM se actualice
+    requestAnimationFrame(() => {
+      const newScrollContainer = document.querySelector('main');
+      if (newScrollContainer) {
+        newScrollContainer.scrollTop = scrollPosition;
+      }
+    });
+  };
+
+  window.renderCalculatorWithScroll = () => {
+    // Guardar posición del scroll
+    const scrollContainer = document.querySelector('main');
+    const scrollPosition = scrollContainer ? scrollContainer.scrollTop : 0;
+    
+    // Re-renderizar
+    renderCalculator();
+    
+    // Restaurar posición del scroll después de que el DOM se actualice
+    requestAnimationFrame(() => {
+      const newScrollContainer = document.querySelector('main');
+      if (newScrollContainer) {
+        newScrollContainer.scrollTop = scrollPosition;
+      }
+    });
   };
 
   window.nextStep = () => {
@@ -207,13 +241,13 @@ function Calculator() {
     } else if (state.step < 6) {
       state.step++;
     }
-    renderCalculator();
+    renderCalculator(); // Aquí SÍ podemos perder scroll porque cambiamos de paso
   };
 
   window.prevStep = () => {
     if (state.step > 1) {
       state.step--;
-      renderCalculator();
+      renderCalculator(); // Aquí SÍ podemos perder scroll porque cambiamos de paso
     }
   };
 
@@ -401,7 +435,7 @@ function Calculator() {
           <input
             type="number"
             value="${state.config.kwhPrice}"
-            onchange="updateConfig('kwhPrice', parseFloat(this.value))"
+            oninput="updateConfig('kwhPrice', parseFloat(this.value) || 0)"
             class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-xl font-bold text-cyan-400 focus:outline-none focus:border-cyan-500"
           />
           <p class="text-xs text-zinc-500 mt-2">💡 Recomendado: ~920 COP</p>
@@ -463,7 +497,7 @@ function Calculator() {
           <input
             type="number"
             value="${state.config.materialCostPerKg}"
-            onchange="updateConfig('materialCostPerKg', parseFloat(this.value))"
+            oninput="updateConfig('materialCostPerKg', parseFloat(this.value) || 0)"
             class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500 mb-2"
           />
           <p class="text-xs text-zinc-500 mb-4">Precio por kilogramo</p>
@@ -513,7 +547,7 @@ function Calculator() {
               type="number"
               step="0.1"
               value="${state.print.printHours || ''}"
-              onchange="updatePrint('printHours', parseFloat(this.value) || 0)"
+              oninput="updatePrint('printHours', parseFloat(this.value) || 0)"
               class="w-full bg-transparent text-center text-5xl font-bold text-white focus:outline-none"
               placeholder="0.0"
             />
@@ -560,7 +594,7 @@ function Calculator() {
                 type="number"
                 min="1"
                 value="${state.print.plateCount}"
-                onchange="updatePrint('plateCount', parseInt(this.value) || 1)"
+                oninput="updatePrint('plateCount', parseInt(this.value) || 1)"
                 class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500"
               />
             </div>
@@ -574,7 +608,7 @@ function Calculator() {
             <input
               type="number"
               value="${state.print.coolMinutes || selectedMaterial.coolMinutes}"
-              onchange="updatePrint('coolMinutes', parseInt(this.value) || 0)"
+              oninput="updatePrint('coolMinutes', parseInt(this.value) || 0)"
               class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-cyan-500"
             />
             <p class="text-xs text-zinc-500 mt-2">
@@ -597,7 +631,7 @@ function Calculator() {
             <input
               type="number"
               value="${state.print.materialCost || ''}"
-              onchange="updatePrint('materialCost', parseFloat(this.value) || 0)"
+              oninput="updatePrint('materialCost', parseFloat(this.value) || 0)"
               class="w-full bg-transparent text-right text-3xl font-bold text-cyan-400 focus:outline-none"
               placeholder="0"
             />
@@ -787,7 +821,7 @@ function Calculator() {
               <input
                 type="number"
                 value="${state.logistics.packagingCustom}"
-                onchange="updateLogistics('packagingCustom', parseFloat(this.value) || 0)"
+                oninput="updateLogistics('packagingCustom', parseFloat(this.value) || 0)"
                 class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-cyan-400 focus:outline-none focus:border-cyan-500"
                 placeholder="Ingrese costo"
               />
@@ -847,7 +881,7 @@ function Calculator() {
             <input
               type="number"
               value="${state.pricing.profitMargin}"
-              onchange="updatePricing('profitMargin', parseFloat(this.value) || 0)"
+              oninput="updatePricing('profitMargin', parseFloat(this.value) || 0)"
               class="w-24 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-center text-2xl font-bold text-cyan-400 focus:outline-none focus:border-cyan-500"
             />
             <span class="text-2xl text-white">%</span>
@@ -868,7 +902,7 @@ function Calculator() {
           <input
             type="number"
             value="${state.pricing.additionalCharge}"
-            onchange="updatePricing('additionalCharge', parseFloat(this.value) || 0)"
+            oninput="updatePricing('additionalCharge', parseFloat(this.value) || 0)"
             class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-xl font-bold text-purple-400 focus:outline-none focus:border-purple-500"
             placeholder="0"
           />
@@ -1164,6 +1198,23 @@ function renderCalculator() {
   const root = document.getElementById('root');
   root.innerHTML = Calculator();
 }
+
+window.renderCalculatorWithScroll = () => {
+  // Guardar posición del scroll SOLO del main (no de toda la página)
+  const scrollContainer = document.querySelector('main');
+  const scrollPosition = scrollContainer ? scrollContainer.scrollTop : 0;
+  
+  // Re-renderizar
+  renderCalculator();
+  
+  // Restaurar posición del scroll después de que el DOM se actualice
+  requestAnimationFrame(() => {
+    const newScrollContainer = document.querySelector('main');
+    if (newScrollContainer) {
+      newScrollContainer.scrollTop = scrollPosition;
+    }
+  });
+};
 
 
 // ============================================
@@ -1959,9 +2010,9 @@ window.savePackageToDatabase = async () => {
 
   try {
     const packageData = {
-    packageName,
-    clientName: null,
-    quoteIds: state.selectedQuotes,
+      packageName,
+      clientName: null,
+      quoteIds: state.selectedQuotes,
       packageLogistics: state.logistics,
       individualTotal: r.individualTotal,
       totalProductionCosts: r.totalProductionCosts,
