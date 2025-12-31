@@ -118,6 +118,55 @@ const VARIANT_CONFIGS = [
   { shipping: 'national', packaging: 'large', name: 'Domicilio Nacional + Empaque Grande' }
 ];
 
+// Variantes Maestras para ADN Técnico (Plan Maestro de Ingeniería)
+const MASTER_VARIANT_CONFIGS = [
+  {
+    id: 'V1',
+    name: 'Pago Directo + Recogida',
+    gateway: 'nequi',
+    shipping: 'pickup',
+    packaging: 'small',
+    isMinimum: true,
+    description: 'Precio mínimo sin comisiones'
+  },
+  {
+    id: 'V2',
+    name: 'Pago Directo + Envío Local',
+    gateway: 'nequi',
+    shipping: 'local',
+    packaging: 'medium',
+    description: 'Sin comisión, con envío'
+  },
+  {
+    id: 'V3',
+    name: 'Wompi + Recogida',
+    gateway: 'wompi',
+    shipping: 'pickup',
+    packaging: 'small',
+    description: 'Con comisión, sin envío'
+  },
+  {
+    id: 'V4',
+    name: 'Wompi + Envío Local (Estándar)',
+    gateway: 'wompi',
+    shipping: 'local',
+    packaging: 'medium',
+    isStandard: true,
+    description: 'Configuración estándar para tienda'
+  }
+];
+
+// Configuración para lógica N-1 de paquetes
+const PACKAGE_CONFIG = {
+  DEFAULT_SHIPPING_DEDUCTION: 15000, // Costo envío a restar en productos adicionales
+  DISCOUNT_OPTIONS: [0, 10, 15, 20],  // Escenarios de descuento para matriz
+  MARGIN_THRESHOLDS: {
+    GREEN: 30,   // >= 30% = bueno
+    YELLOW: 20,  // >= 20% = aceptable
+    RED: 0       // < 20% = bajo
+  }
+};
+
 const SYSTEM_CONFIG = {
   DEFAULT_KWH_PRICE: 920,
   DEFAULT_MARGIN: 30,
@@ -130,6 +179,16 @@ const SYSTEM_CONFIG = {
   WOMPI_IVA: 0.19
 };
 
+// ============================================
+// USUARIOS AUTORIZADOS (Whitelist)
+// Solo estos usuarios pueden acceder a SICMA
+// ============================================
+const AUTHORIZED_USERS = [
+  'c4a011c5-d8af-47ab-bc2f-f245b3cf6462',
+  'a8f3681d-ab81-44d5-9a18-f365092d5714',
+  '9d2bca2f-eec2-49ef-b843-6691a0d3ed2d'
+];
+
 window.SICMA_CONSTANTS = {
   PRINTERS,
   NOZZLES,
@@ -139,7 +198,10 @@ window.SICMA_CONSTANTS = {
   COMPLEXITY_LEVELS,
   GATEWAYS,
   VARIANT_CONFIGS,
-  SYSTEM_CONFIG
+  MASTER_VARIANT_CONFIGS,
+  PACKAGE_CONFIG,
+  SYSTEM_CONFIG,
+  AUTHORIZED_USERS
 };
 
 // ============================================
