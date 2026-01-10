@@ -58,6 +58,9 @@ function HomeScreen() {
   const Icons = getIcons();
   const user = window.appState?.user;
 
+  // Init stats
+  setTimeout(() => window.loadDashboardStats && window.loadDashboardStats(), 100);
+
   return `
     <div class="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
       <header class="bg-zinc-900 border-b border-zinc-800 p-4">
@@ -135,18 +138,14 @@ function HomeScreen() {
 
           </div>
 
-          <div class="grid grid-cols-3 gap-3 mt-8">
+          <div class="grid grid-cols-2 gap-3 mt-8">
             <div class="bg-zinc-900 p-4 rounded-xl text-center border border-zinc-800">
-              <div class="text-2xl font-bold text-cyan-400">--</div>
+              <div id="stats-quotes" class="text-2xl font-bold text-cyan-400">...</div>
               <div class="text-xs text-zinc-500 mt-1">Cotizaciones</div>
             </div>
             <div class="bg-zinc-900 p-4 rounded-xl text-center border border-zinc-800">
-              <div class="text-2xl font-bold text-purple-400">--</div>
+              <div id="stats-packages" class="text-2xl font-bold text-purple-400">...</div>
               <div class="text-xs text-zinc-500 mt-1">Paquetes</div>
-            </div>
-            <div class="bg-zinc-900 p-4 rounded-xl text-center border border-zinc-800">
-              <div class="text-2xl font-bold text-green-400">--</div>
-              <div class="text-xs text-zinc-500 mt-1">Este mes</div>
             </div>
           </div>
 
@@ -176,7 +175,7 @@ function Calculator() {
         printer: 'p1s',
         nozzle: 0.4,
         material: 'pla',
-        materialCostPerKg: 85000,
+        materialCostPerKg: 75000,
         amsMode: false
       },
       print: {
@@ -196,6 +195,7 @@ function Calculator() {
         packagingType: 'box',
         packagingSize: 'small',
         packagingCustom: 0,
+        shippingCustom: 0,
         additionalsToggle: false
       },
       pricing: {
@@ -228,6 +228,15 @@ function Calculator() {
 
   window.updateLabor = (key, value) => {
     state.labor[key] = value;
+
+    // Auto-update margin based on complexity
+    if (key === 'complexity') {
+      if (value === 'simple') state.pricing.profitMargin = 25;
+      else if (value === 'easy') state.pricing.profitMargin = 30;
+      else if (value === 'medium') state.pricing.profitMargin = 35;
+      else if (value === 'hard') state.pricing.profitMargin = 40;
+    }
+
     renderCalculatorWithScroll();
   };
 
@@ -241,7 +250,51 @@ function Calculator() {
     renderCalculatorWithScroll();
   };
 
+  // Helper para vista previa de tiempo sin enter
+  window.updateTimePreview = (val) => {
+    const hours = parseFloat(val) || 0;
+
+    // 1. Actualizar estado (debounce para render completo)
+    debouncedUpdate('printHours', 'print', hours);
+
+    // 2. Actualizar visualmente inmediato
+    const previewContainer = document.getElementById('timePreviewContainer');
+    const previewText = document.getElementById('timePreviewText');
+
+    if (hours > 0) {
+      if (previewContainer) previewContainer.classList.remove('hidden');
+      if (previewText) {
+        const p = window.Formatters.parseDecimalHours(hours);
+        previewText.textContent = `≈ ${p.hours}h ${p.minutes}min`;
+      }
+    } else {
+      if (previewContainer) previewContainer.classList.add('hidden');
+    }
+  };
+
   window.nextStep = () => {
+    // Validation Logic
+    if (state.step === 1) {
+      if (!state.config.kwhPrice || !state.config.materialCostPerKg) {
+        alert('⚠️ Por favor completa todos los campos obligatorios (Costo Luz, Costo Filamento)');
+        return;
+      }
+    } else if (state.step === 2) {
+      if (!state.print.printHours || !state.print.materialCost) {
+        alert('⚠️ Por favor ingresa el Tiempo y el Costo de Material');
+        return;
+      }
+    } else if (state.step === 4) {
+      if (state.logistics.shipping === 'national' && !state.logistics.shippingCustom) {
+        alert('⚠️ Por favor ingresa el costo del envío personalizado');
+        return;
+      }
+      if (state.logistics.packagingSize === 'deluxe' && !state.logistics.packagingCustom) {
+        alert('⚠️ Por favor ingresa el costo del empaque personalizado');
+        return;
+      }
+    }
+
     if (state.step === 5) {
       // Calcular antes de ir a resultados
       state.results = window.Calculations.calculateQuote({
@@ -354,6 +407,36 @@ function Calculator() {
         loadingText.classList.add('text-red-400');
       }
     }
+
+    // Pre-fill data if editing
+    if (state.meta) {
+      document.getElementById('quoteName').value = state.meta.quoteName || '';
+      if (state.meta.clientName) document.getElementById('clientName').value = state.meta.clientName;
+      if (state.meta.notes) document.getElementById('notes').value = state.meta.notes;
+      if (state.meta.productId) {
+        // Wait for options to populate
+        setTimeout(() => {
+          const select = document.getElementById('productId');
+          select.value = state.meta.productId;
+          window.onProductSelected(); // Trigger update
+        }, 500);
+      }
+    }
+
+    // Show overwrite option if editing
+    if (state.editingId) {
+      const notesContainer = document.getElementById('notes').parentElement;
+      const overwriteDiv = document.createElement('div');
+      overwriteDiv.className = 'mt-4 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center gap-3';
+      overwriteDiv.innerHTML = `
+        <input type="checkbox" id="overwriteQuote" checked class="w-5 h-5 accent-purple-500">
+        <div>
+          <label for="overwriteQuote" class="block text-sm font-bold text-purple-300">Actualizar cotización existente</label>
+          <p class="text-xs text-purple-400/70">Si desmarcas, se guardará como una copia nueva.</p>
+        </div>
+      `;
+      notesContainer.after(overwriteDiv);
+    }
   };
 
   // Manejador cuando se selecciona un producto
@@ -399,6 +482,9 @@ function Calculator() {
       return;
     }
 
+    const overwriteCheckbox = document.getElementById('overwriteQuote');
+    const shouldOverwrite = overwriteCheckbox ? overwriteCheckbox.checked : false;
+
     errorDiv.classList.add('hidden');
     loadingDiv.classList.remove('hidden');
 
@@ -414,7 +500,8 @@ function Calculator() {
         labor: state.labor,
         logistics: state.logistics,
         pricing: state.pricing,
-        results: state.results
+        results: state.results,
+        id: shouldOverwrite ? state.editingId : null
       };
       await window.Storage.saveQuote(quoteData);
       loadingDiv.classList.add('hidden');
@@ -504,16 +591,14 @@ function Calculator() {
           <label class="block text-sm text-zinc-400 mb-4 flex items-center gap-2">${Icons.Clock()} Tiempo (desde Bambu Studio)</label>
           <div class="bg-zinc-800 rounded-xl p-6 text-center mb-4">
             <input type="text" inputmode="decimal" value="${state.print.printHours || ''}" 
-              oninput="debouncedUpdate('printHours', 'print', parseFloat(this.value) || 0)" 
+              oninput="window.updateTimePreview(this.value)" 
               onblur="handleInputBlur('printHours', 'print', parseFloat(this.value) || 0)" 
               class="w-full bg-transparent text-center text-5xl font-bold text-white focus:outline-none" placeholder="0.0" />
             <div class="text-sm text-zinc-500 mt-2">horas (ej: 4.42 = 4h 25min)</div>
           </div>
-          ${state.print.printHours > 0 ? `
-            <div class="text-center text-xs text-cyan-400 font-mono bg-cyan-500/10 p-2 rounded-lg mb-4">
-              ≈ ${parseDecimalHours(state.print.printHours).hours}h ${parseDecimalHours(state.print.printHours).minutes}min
-            </div>
-          ` : ''}
+          <div id="timePreviewContainer" class="${state.print.printHours > 0 ? '' : 'hidden'} text-center text-xs text-cyan-400 font-mono bg-cyan-500/10 p-2 rounded-lg mb-4">
+             <span id="timePreviewText">≈ ${state.print.printHours > 0 ? `${parseDecimalHours(state.print.printHours).hours}h ${parseDecimalHours(state.print.printHours).minutes}min` : ''}</span>
+          </div>
         </div>
 
         <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
@@ -560,8 +645,8 @@ function Calculator() {
         <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
           <h3 class="text-sm font-bold text-white mb-3">Acabados Opcionales</h3>
           <div class="space-y-3">
-            <div class="flex items-center justify-between p-3 bg-zinc-800 rounded-lg"><div class="flex items-center gap-2">${Icons.Sparkles(18)}<div><div class="text-sm font-semibold">Primer</div><div class="text-xs text-zinc-500">+$1.500</div></div></div><button onclick="updateLabor('primerToggle', ${!state.labor.primerToggle})" class="w-12 h-6 rounded-full transition relative ${state.labor.primerToggle ? 'bg-cyan-500' : 'bg-zinc-700'}"><div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition ${state.labor.primerToggle ? 'translate-x-6' : ''}"></div></button></div>
-            <div class="flex items-center justify-between p-3 bg-zinc-800 rounded-lg"><div class="flex items-center gap-2">${Icons.Sparkles(18)}<div><div class="text-sm font-semibold">Laca</div><div class="text-xs text-zinc-500">+$1.500</div></div></div><button onclick="updateLabor('lacquerToggle', ${!state.labor.lacquerToggle})" class="w-12 h-6 rounded-full transition relative ${state.labor.lacquerToggle ? 'bg-cyan-500' : 'bg-zinc-700'}"><div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition ${state.labor.lacquerToggle ? 'translate-x-6' : ''}"></div></button></div>
+            <div class="flex items-center justify-between p-3 bg-zinc-800 rounded-lg"><div class="flex items-center gap-2">${Icons.Sparkles(18)}<div><div class="text-sm font-semibold">Primer</div><div class="text-xs text-zinc-500">+$1.000</div></div></div><button onclick="updateLabor('primerToggle', ${!state.labor.primerToggle})" class="w-12 h-6 rounded-full transition relative ${state.labor.primerToggle ? 'bg-cyan-500' : 'bg-zinc-700'}"><div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition ${state.labor.primerToggle ? 'translate-x-6' : ''}"></div></button></div>
+            <div class="flex items-center justify-between p-3 bg-zinc-800 rounded-lg"><div class="flex items-center gap-2">${Icons.Sparkles(18)}<div><div class="text-sm font-semibold">Laca</div><div class="text-xs text-zinc-500">+$1.000</div></div></div><button onclick="updateLabor('lacquerToggle', ${!state.labor.lacquerToggle})" class="w-12 h-6 rounded-full transition relative ${state.labor.lacquerToggle ? 'bg-cyan-500' : 'bg-zinc-700'}"><div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition ${state.labor.lacquerToggle ? 'translate-x-6' : ''}"></div></button></div>
           </div>
           <p class="text-xs text-zinc-500 mt-3">💡 Activa solo si la pieza requiere estos acabados</p>
         </div>
@@ -576,8 +661,17 @@ function Calculator() {
         <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
           <label class="block text-sm text-zinc-400 mb-3 flex items-center gap-2">${Icons.Truck()} Envío</label>
           <div class="space-y-2">
-            ${SHIPPING_OPTIONS.map(option => `<button onclick="updateLogistics('shipping', '${option.id}')" class="w-full p-4 rounded-xl border-2 transition flex items-center justify-between ${state.logistics.shipping === option.id ? 'border-cyan-500 bg-cyan-500/10' : 'border-zinc-700 bg-zinc-800'}"><div class="flex items-center gap-3"><div class="text-2xl">${option.icon}</div><div class="text-sm font-semibold">${option.name}</div></div><div class="text-sm font-bold">${option.cost === 0 ? 'Gratis' : `${formatCurrency(option.cost)}`}</div></button>`).join('')}
+            ${SHIPPING_OPTIONS.map(option => `<button onclick="updateLogistics('shipping', '${option.id}')" class="w-full p-4 rounded-xl border-2 transition flex items-center justify-between ${state.logistics.shipping === option.id ? 'border-cyan-500 bg-cyan-500/10' : 'border-zinc-700 bg-zinc-800'}"><div class="flex items-center gap-3"><div class="text-2xl">${option.icon}</div><div class="text-sm font-semibold">${option.name}</div></div><div class="text-sm font-bold">${option.id === 'national' ? 'Personalizado' : (option.cost === 0 ? 'Gratis' : `${formatCurrency(option.cost)}`)}</div></button>`).join('')}
           </div>
+          ${state.logistics.shipping === 'national' ? `
+            <div class="mt-4 animate-fade-in">
+              <label class="block text-sm text-zinc-400 mb-2">Costo Envío Personalizado</label>
+              <input type="text" inputmode="decimal" value="${state.logistics.shippingCustom}" 
+                oninput="debouncedUpdate('shippingCustom', 'logistics', parseFloat(this.value) || 0)" 
+                onblur="handleInputBlur('shippingCustom', 'logistics', parseFloat(this.value) || 0)" 
+                class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-lg font-bold text-cyan-400 focus:outline-none focus:border-cyan-500" placeholder="0" />
+            </div>
+          ` : ''}
         </div>
 
         <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800">
@@ -843,9 +937,10 @@ window.showQuoteDetail = async (quoteId) => {
   try {
     const quote = await window.Storage.getQuoteById(quoteId);
     const r = quote.results;
-    modal.innerHTML = `<div class="bg-zinc-900 rounded-2xl border border-zinc-700 max-w-2xl w-full my-8 animate-slide-up"><div class="flex items-center justify-between p-6 border-b border-zinc-800"><div class="flex-1"><h2 class="text-2xl font-bold text-white">${quote.quote_name}</h2>${quote.client_name ? `<p class="text-sm text-zinc-400">Cliente: ${quote.client_name}</p>` : ''}</div><button onclick="closeDetailModal()" class="text-zinc-400 hover:text-white transition">${Icons.X(24)}</button></div><div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto"><div class="text-center bg-gradient-to-br from-zinc-800 to-zinc-700 rounded-xl p-6"><p class="text-zinc-400 text-sm mb-2">Precio Base</p><p class="text-4xl font-black text-white">${formatCurrency(r.finalPrice)}</p></div>${quote.variants && quote.variants.length > 0 ? `<div><h3 class="text-lg font-bold text-white mb-3">💰 Variantes de Precio</h3><div class="space-y-2">${quote.variants.map(v => `<div class="bg-zinc-800 rounded-lg p-3 flex items-center justify-between"><span class="text-sm text-zinc-300">${v.variant_name}</span><span class="font-bold text-cyan-400">${formatCurrency(v.final_price)}</span></div>`).join('')}</div></div>` : ''}<div class="grid grid-cols-2 gap-4"><div class="bg-zinc-800 rounded-lg p-4"><p class="text-xs text-zinc-500 mb-1">Tiempo Total</p><p class="text-lg font-bold text-white">${formatHours(r.totalProductionTime)}</p></div><div class="bg-zinc-800 rounded-lg p-4"><p class="text-xs text-zinc-500 mb-1">Ganancia Neta</p><p class="text-lg font-bold text-green-400">${formatCurrency(r.netProfit)}</p></div></div><div><h3 class="text-sm font-bold text-zinc-400 mb-3">BREAKDOWN DE COSTOS</h3><div class="space-y-2 text-sm"><div class="flex justify-between"><span class="text-zinc-400">Costos Duros</span><span class="text-white font-mono">${formatCurrency(r.hardCosts)}</span></div><div class="flex justify-between"><span class="text-zinc-400">Mano de Obra</span><span class="text-white font-mono">${formatCurrency(r.softCosts)}</span></div><div class="flex justify-between"><span class="text-zinc-400">Logística</span><span class="text-white font-mono">${formatCurrency(r.logisticsCosts)}</span></div></div></div>${quote.notes ? `<div><h3 class="text-sm font-bold text-zinc-400 mb-2">NOTAS</h3><p class="text-sm text-zinc-300 bg-zinc-800 rounded-lg p-3">${quote.notes}</p></div>` : ''}</div><div class="p-6 border-t border-zinc-800 flex gap-3"><button onclick="deleteHistoryItem('${quote.id}', 'quote')" class="flex-1 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 font-bold hover:bg-red-500/20 transition">${Icons.Trash2(20)} Eliminar</button><button onclick="closeDetailModal()" class="flex-1 py-3 rounded-lg bg-zinc-800 text-white font-bold hover:bg-zinc-700 transition">Cerrar</button></div></div>`;
+    modal.innerHTML = `<div class="bg-zinc-900 rounded-2xl border border-zinc-700 max-w-2xl w-full my-8 animate-slide-up"><div class="flex items-center justify-between p-6 border-b border-zinc-800"><div class="flex-1"><h2 class="text-2xl font-bold text-white">${quote.quote_name}</h2>${quote.client_name ? `<p class="text-sm text-zinc-400">Cliente: ${quote.client_name}</p>` : ''}</div><button onclick="closeDetailModal()" class="text-zinc-400 hover:text-white transition">${Icons.X(24)}</button></div><div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto"><div class="text-center bg-gradient-to-br from-zinc-800 to-zinc-700 rounded-xl p-6"><p class="text-zinc-400 text-sm mb-2">Precio Base</p><p class="text-4xl font-black text-white">${formatCurrency(r.finalPrice)}</p></div>${quote.variants && quote.variants.length > 0 ? `<div><h3 class="text-lg font-bold text-white mb-3">💰 Variantes de Precio</h3><div class="space-y-2">${quote.variants.map(v => `<div class="bg-zinc-800 rounded-lg p-3 flex items-center justify-between"><span class="text-sm text-zinc-300">${v.variant_name}</span><span class="font-bold text-cyan-400">${formatCurrency(v.final_price)}</span></div>`).join('')}</div></div>` : ''}<div class="grid grid-cols-2 gap-4"><div class="bg-zinc-800 rounded-lg p-4"><p class="text-xs text-zinc-500 mb-1">Tiempo Total</p><p class="text-lg font-bold text-white">${formatHours(r.totalProductionTime)}</p></div><div class="bg-zinc-800 rounded-lg p-4"><p class="text-xs text-zinc-500 mb-1">Ganancia Neta</p><p class="text-lg font-bold text-green-400">${formatCurrency(r.netProfit)}</p></div></div><div><h3 class="text-sm font-bold text-zinc-400 mb-3">BREAKDOWN DE COSTOS</h3><div class="space-y-2 text-sm"><div class="flex justify-between"><span class="text-zinc-400">Costos Duros</span><span class="text-white font-mono">${formatCurrency(r.hardCosts)}</span></div><div class="flex justify-between"><span class="text-zinc-400">Mano de Obra</span><span class="text-white font-mono">${formatCurrency(r.softCosts)}</span></div><div class="flex justify-between"><span class="text-zinc-400">Logística</span><span class="text-white font-mono">${formatCurrency(r.logisticsCosts)}</span></div></div></div>${quote.notes ? `<div><h3 class="text-sm font-bold text-zinc-400 mb-2">NOTAS</h3><p class="text-sm text-zinc-300 bg-zinc-800 rounded-lg p-3">${quote.notes}</p></div>` : ''}</div><div class="p-6 border-t border-zinc-800 flex flex-col sm:flex-row gap-3"><button onclick="editHistoryItem('${quote.id}', 'quote')" class="flex-1 py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">${Icons.Edit(20)} Editar Cotización</button><button onclick="deleteHistoryItem('${quote.id}', 'quote')" class="flex-1 py-4 rounded-xl bg-gradient-to-r from-red-600/10 to-red-500/10 border border-red-500/20 text-red-400 font-bold hover:bg-red-500/20 hover:border-red-500/40 transition-all flex items-center justify-center gap-2">${Icons.Trash2(20)} Eliminar</button></div></div>`;
   } catch (error) {
-    modal.innerHTML = `<div class="bg-zinc-900 rounded-2xl border border-zinc-700 max-w-md w-full p-6"><p class="text-red-400 mb-4">Error cargando detalles</p><button onclick="closeDetailModal()" class="w-full py-3 bg-zinc-800 rounded-lg">Cerrar</button></div>`;
+    console.error('Error in showQuoteDetail:', error);
+    modal.innerHTML = `<div class="bg-zinc-900 rounded-2xl border border-zinc-700 max-w-md w-full p-6"><p class="text-red-400 mb-2 font-bold">Error cargando detalles</p><p class="text-zinc-500 text-sm mb-4 break-words">${error.message}</p><button onclick="closeDetailModal()" class="w-full py-3 bg-zinc-800 rounded-lg text-white hover:bg-zinc-700 transition">Cerrar</button></div>`;
   }
 };
 
@@ -856,8 +951,59 @@ window.deleteHistoryItem = async (id, type) => {
   try {
     if (type === 'quote') { await window.Storage.deleteQuote(id); } else { await window.Storage.deletePackage(id); }
     closeDetailModal(); showSuccessNotification('✅ Eliminado correctamente');
-    delete window.historyState; navigateTo('history');
+    delete window.historyState;
+    loadDashboardStats(); // Refresh stats
+    navigateTo('history');
   } catch (error) { alert('Error al eliminar: ' + error.message); }
+};
+
+window.editHistoryItem = async (id, type) => {
+  if (type !== 'quote') return alert('Solo se pueden editar cotizaciones individuales por ahora');
+  try {
+    const quote = await window.Storage.getQuoteById(id);
+
+    // Load data into calculator state
+    window.calculatorState = {
+      step: 1,
+      config: quote.config,
+      print: quote.print_data,
+      labor: quote.labor,
+      logistics: quote.logistics,
+      pricing: quote.pricing,
+      results: quote.results,
+      editingId: quote.id,
+      meta: {
+        quoteName: quote.quote_name,
+        clientName: quote.client_name,
+        productId: quote.product_id,
+        notes: quote.notes
+      }
+    };
+
+    closeDetailModal();
+    navigateTo('calculator');
+    showSuccessNotification('📝 Cotización cargada para editar');
+  } catch (error) {
+    alert('Error al cargar para editar: ' + error.message);
+  }
+};
+
+window.loadDashboardStats = async () => {
+  try {
+    // Simple fetch count - optimized would be a backend count query
+    const [quotes, packages] = await Promise.all([window.Storage.getQuotes(100, 0), window.Storage.getPackages(100, 0)]);
+
+    // Update DOM directly if elements exist
+    const qEl = document.querySelector('#stats-quotes');
+    const pEl = document.querySelector('#stats-packages');
+
+    if (qEl) qEl.innerText = quotes.length;
+    if (pEl) pEl.innerText = packages.length;
+
+    window.appState = window.appState || {};
+    window.appState.stats = { quotes: quotes.length, packages: packages.length };
+
+  } catch (e) { console.error('Error loading stats', e); }
 };
 
 // ============================================

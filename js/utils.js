@@ -457,9 +457,13 @@ async function saveQuote(quoteData) {
       created_by: userId
     };
 
+    if (quoteData.id) {
+      quoteToInsert.id = quoteData.id;
+    }
+
     const { data: quote, error: quoteError } = await supabase
       .from('sicma_quotes')
-      .insert([quoteToInsert])
+      .upsert([quoteToInsert])
       .select()
       .single();
 

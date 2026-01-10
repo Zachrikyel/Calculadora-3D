@@ -57,23 +57,23 @@ const MATERIALS = [
 const SHIPPING_OPTIONS = [
   { id: 'pickup', name: 'Recogida', cost: 0, icon: '🏪' },
   { id: 'local', name: 'Local', cost: 15000, icon: '📦' },
-  { id: 'national', name: 'Nacional', cost: 20000, icon: '🚚' }
+  { id: 'national', name: 'Deluxe', cost: 0, icon: '🚚' }
 ];
 
 const PACKAGING = [
   { id: 'small', name: 'Pequeña', cost: 3000 },
   { id: 'medium', name: 'Mediana', cost: 4000 },
   { id: 'large', name: 'Grande', cost: 5000 },
-  { id: 'deluxe', name: 'Deluxe (personalizado)', cost: 0 }
+  { id: 'deluxe', name: 'Deluxe Personalizado', cost: 0 }
 ];
 
 const COMPLEXITY_LEVELS = {
   simple: {
     name: 'Simple (Solo Impresión)',
-    postProcessMinutes: 10,
-    operatorMinutes: 5,
-    failureRisk: 0.05,
-    suppliesCost: 500,
+    postProcessMinutes: 5,
+    operatorMinutes: 0,
+    failureRisk: 0.02,
+    suppliesCost: 200,
     description: 'Solo sacar de impresora y revisar'
   },
   easy: {
@@ -81,23 +81,23 @@ const COMPLEXITY_LEVELS = {
     postProcessMinutes: 60,
     operatorMinutes: 5,
     failureRisk: 0.10,
-    suppliesCost: 1500,
+    suppliesCost: 2000,
     description: 'Limpieza básica y lijado ligero'
   },
   medium: {
     name: 'Media',
-    postProcessMinutes: 75,
+    postProcessMinutes: 120,
     operatorMinutes: 5,
-    failureRisk: 0.15,
-    suppliesCost: 3000,
+    failureRisk: 0.20,
+    suppliesCost: 4000,
     description: 'Lijado, acabados básicos'
   },
   hard: {
     name: 'Difícil',
-    postProcessMinutes: 120,
-    operatorMinutes: 5,
-    failureRisk: 0.20,
-    suppliesCost: 5000,
+    postProcessMinutes: 180,
+    operatorMinutes: 10,
+    failureRisk: 0.40,
+    suppliesCost: 10000,
     description: 'Múltiples acabados, ensamblaje'
   }
 };
@@ -172,8 +172,8 @@ const SYSTEM_CONFIG = {
   DEFAULT_MARGIN: 30,
   HOURLY_LABOR_RATE: 20000,
   AMS_ADDITIONAL_RISK: 0.02,
-  PRIMER_COST: 1500,
-  LACQUER_COST: 1500,
+  PRIMER_COST: 1000,
+  LACQUER_COST: 1000,
   PACKAGING_ADDITIONAL_RISK: 0.02,
   WOMPI_RATE: 0.0265,
   WOMPI_IVA: 0.19
@@ -230,6 +230,7 @@ const Icons = {
   Trash2: (size = 20) => `<svg width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
   Camera: (size = 20) => `<svg width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
   Check: (size = 20) => `<svg width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  Edit: (size = 20) => `<svg width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   X: (size = 20) => `<svg width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
 };
 
